@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 import httpx
@@ -82,7 +83,20 @@ def test_openrouter_bez_hugging_face_id_open_weights_je_nepoznato(name: str) -> 
 def test_openrouter_polja_koja_izvor_ne_daje_ostaju_none() -> None:
     model = _openrouter()["anthropic/claude-sonnet-5"]
 
-    assert (model.released_at, model.params_b, model.license) == (None, None, None)
+    assert (model.params_b, model.license) == (None, None)
+
+
+def test_openrouter_datum_dodavanja_je_priblizan_datum_izdanja() -> None:
+    model = _openrouter()["nex-agi/nex-n2.6"]
+
+    # created = 1794282379 → 2026-11-10 UTC
+    assert model.released_at == date(2026, 11, 10)
+
+
+def test_openrouter_bez_created_datum_je_none() -> None:
+    body = b'{"data": [{"id": "lab/x", "name": "Lab: X"}]}'
+
+    assert openrouter.parse_models(body)[0].released_at is None
 
 
 @pytest.mark.parametrize(

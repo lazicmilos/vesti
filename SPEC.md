@@ -3,7 +3,7 @@
 ```
 Naziv dokumenta:  Specifikacija za implementaciju — AI Tracker (radni naziv)
 Oznaka:           SPEC-AIT-001
-Verzija:          1.1
+Verzija:          1.2
 Datum:            10.11.2026.
 Autor:            Miloš Lazić
 Status:           Odobreno za implementaciju
@@ -13,6 +13,7 @@ Status:           Odobreno za implementaciju
 | --- | --- | --- | --- |
 | 1.0 | 10.11.2026. | Miloš Lazić | Prva verzija za implementaciju |
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
+| 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
 
 ---
 
@@ -663,6 +664,7 @@ Dok vlasnik ne odluči, agent koristi podrazumevanu vrednost i ne blokira se.
 | Hosting sajta | Odlučeno: Cloudflare Pages (besplatni tier dozvoljava komercijalnu upotrebu; Vercel Hobby ne). Ne koristiti funkcionalnosti specifične za Vercel |
 | LLM provajder i model | Odluka posle blind testa u F3 |
 | Rečnik: srpski ili engleski termin | Početna verzija iz 11.4 |
+| Datum izdanja modela (`released_at`) | Odlučeno: OpenRouter ne daje datum izdanja, pa se datum dodavanja na OpenRouter (`created`) upisuje kao približan, sa izvorom `openrouter` u `field_sources`. Izuzetak od FR-003 samo za ovo polje. Hugging Face datum pravljenja repoa se ne koristi |
 
 ---
 

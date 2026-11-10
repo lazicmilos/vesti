@@ -1,5 +1,6 @@
 """OpenRouter: lista modela sa cenama i context window-om (glavni izvor trackera)."""
 
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ValidationError
@@ -18,6 +19,7 @@ class _Model(BaseModel):
     id: str
     name: str
     hugging_face_id: str | None = None
+    created: int | None = None  # unix vreme dodavanja na OpenRouter
     context_length: int | None = None
     pricing: _Pricing = _Pricing()
 
@@ -60,6 +62,11 @@ def parse_models(body: bytes) -> list[ModelItem]:
             name=name,
             org=org,
             aliases=[hf_id] if hf_id else [],
+            # Odluka vlasnika (SPEC 17): datum dodavanja na OpenRouter važi kao približan
+            # datum izdanja dok ga LLM dopuna iz zvanične najave ne potvrdi (F3).
+            released_at=(
+                datetime.fromtimestamp(model.created, tz=UTC).date() if model.created else None
+            ),
             context_window=model.context_length,
             price_in=_price(model.pricing.prompt),
             price_out=_price(model.pricing.completion),
