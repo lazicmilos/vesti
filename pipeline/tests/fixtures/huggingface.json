@@ -1,0 +1,210 @@
+[
+ {
+  "_id": "678dc6fff905d106be796d8a",
+  "id": "deepseek-ai/DeepSeek-R1",
+  "author": "deepseek-ai",
+  "gated": false,
+  "likes": 14444,
+  "safetensors": {
+   "parameters": {
+    "BF16": 3918786560,
+    "F8_E4M3": 680571043840,
+    "F32": 15104
+   },
+   "total": 684489845504
+  },
+  "tags": [
+   "transformers",
+   "safetensors",
+   "deepseek_v3",
+   "text-generation",
+   "conversational",
+   "custom_code",
+   "arxiv:2501.12948",
+   "license:mit",
+   "eval-results",
+   "text-generation-inference",
+   "endpoints_compatible",
+   "fp8",
+   "deploy:sagemaker",
+   "region:us"
+  ],
+  "createdAt": "2025-01-20T03:46:07.000Z"
+ },
+ {
+  "_id": "650aedb6238a644cb93a52c3",
+  "id": "mistralai/Mistral-7B-v0.1",
+  "author": "mistralai",
+  "gated": false,
+  "likes": 4230,
+  "safetensors": {
+   "parameters": {
+    "BF16": 7241732096
+   },
+   "total": 7241732096
+  },
+  "tags": [
+   "transformers",
+   "pytorch",
+   "safetensors",
+   "mistral",
+   "text-generation",
+   "pretrained",
+   "mistral-common",
+   "en",
+   "arxiv:2310.06825",
+   "license:apache-2.0",
+   "eval-results",
+   "text-generation-inference",
+   "region:us",
+   "deploy:sagemaker"
+  ],
+  "createdAt": "2023-09-20T13:03:50.000Z"
+ },
+ {
+  "_id": "6aab2908d3d583554438fce8",
+  "id": "prism-ml/Ternary-Bonsai-2-27B-gguf",
+  "author": "prism-ml",
+  "gated": false,
+  "likes": 2981,
+  "tags": [
+   "llama.cpp",
+   "gguf",
+   "ternary",
+   "2-bit",
+   "llama-cpp",
+   "cuda",
+   "metal",
+   "on-device",
+   "hybrid-attention",
+   "prismml",
+   "bonsai",
+   "text-generation",
+   "base_model:Qwen/Qwen3.8-27B",
+   "base_model:quantized:Qwen/Qwen3.8-27B",
+   "license:apache-2.0",
+   "endpoints_compatible",
+   "region:us",
+   "conversational"
+  ],
+  "createdAt": "2026-09-16T23:40:56.000Z"
+ },
+ {
+  "_id": "65c5577b1080431ea9e083cd",
+  "id": "google/gemma-7b",
+  "author": "google",
+  "gated": "manual",
+  "likes": 3471,
+  "safetensors": {
+   "parameters": {
+    "BF16": 8537680896
+   },
+   "total": 8537680896
+  },
+  "tags": [
+   "transformers",
+   "safetensors",
+   "gguf",
+   "gemma",
+   "text-generation",
+   "arxiv:2305.14314",
+   "arxiv:2312.11805",
+   "arxiv:2009.03300",
+   "arxiv:1905.07830",
+   "arxiv:1911.11641",
+   "arxiv:1904.09728",
+   "arxiv:1905.10044",
+   "arxiv:1907.10641",
+   "arxiv:1811.00937",
+   "arxiv:1809.02789",
+   "arxiv:1911.01547",
+   "arxiv:1705.03551",
+   "arxiv:2107.03374",
+   "arxiv:2108.07732",
+   "arxiv:2110.14168",
+   "arxiv:2304.06364",
+   "arxiv:2206.04615",
+   "arxiv:1804.06876",
+   "arxiv:2110.08193",
+   "arxiv:2009.11462",
+   "arxiv:2101.11718",
+   "arxiv:1804.09301",
+   "arxiv:2109.07958",
+   "arxiv:2203.09509",
+   "license:gemma",
+   "eval-results",
+   "text-generation-inference",
+   "endpoints_compatible",
+   "deploy:sagemaker",
+   "region:us"
+  ],
+  "createdAt": "2024-02-08T22:36:43.000Z"
+ },
+ {
+  "_id": "64ed2db1514d2c6f5f533ccf",
+  "id": "tiiuae/falcon-180B",
+  "author": "tiiuae",
+  "gated": "auto",
+  "likes": 1153,
+  "safetensors": {
+   "parameters": {
+    "BF16": 179522565120
+   },
+   "total": 179522565120
+  },
+  "tags": [
+   "transformers",
+   "safetensors",
+   "falcon",
+   "text-generation",
+   "en",
+   "de",
+   "es",
+   "fr",
+   "dataset:tiiuae/falcon-refinedweb",
+   "arxiv:1911.02150",
+   "arxiv:2101.00027",
+   "arxiv:2005.14165",
+   "arxiv:2104.09864",
+   "arxiv:2205.14135",
+   "arxiv:2306.01116",
+   "license:unknown",
+   "text-generation-inference",
+   "deploy:sagemaker",
+   "region:us"
+  ],
+  "createdAt": "2023-08-28T23:28:49.000Z"
+ },
+ {
+  "_id": "680da79d48c19d19cf82ab5e",
+  "id": "Qwen/Qwen3-8B",
+  "author": "Qwen",
+  "gated": false,
+  "likes": 2181,
+  "safetensors": {
+   "parameters": {
+    "BF16": 8190735360
+   },
+   "total": 8190735360
+  },
+  "tags": [
+   "transformers",
+   "safetensors",
+   "qwen3",
+   "text-generation",
+   "conversational",
+   "arxiv:2309.00071",
+   "arxiv:2505.09388",
+   "base_model:Qwen/Qwen3-8B-Base",
+   "base_model:finetune:Qwen/Qwen3-8B-Base",
+   "license:apache-2.0",
+   "eval-results",
+   "text-generation-inference",
+   "endpoints_compatible",
+   "deploy:sagemaker",
+   "deploy:azure",
+   "region:us"
+  ],
+  "createdAt": "2025-04-27T03:42:21.000Z"
+ }
+]

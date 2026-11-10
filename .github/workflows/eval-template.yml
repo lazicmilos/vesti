@@ -1,0 +1,29 @@
+name: Šablon models_gold iz produkcione baze
+
+# Ručno pokretanje: uzorkuje 50 modela iz produkcione baze i ispisuje CSV šablon u log i kao
+# artefakt. Zlatne kolone ostaju prazne; popunjava ih vlasnik (SPEC 0.6).
+on:
+  workflow_dispatch:
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: pipeline
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked --no-dev --python 3.12
+      - run: rm -f ../eval/models_gold.csv
+      - run: uv run --no-dev python ../eval/make_models_gold.py
+      - run: cat ../eval/models_gold.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: models_gold
+          path: eval/models_gold.csv

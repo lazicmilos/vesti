@@ -4,8 +4,8 @@ Tracker AI modela i dnevni feed tech vesti na srpskom. Pipeline se pokreće jedn
 prikuplja podatke iz izvora, i (od faze F5) izvozi statički sajt. Specifikacija je u
 [SPEC.md](SPEC.md), arhitektonske odluke u [docs/adr/](docs/adr/).
 
-**Stanje:** faza F1 (temelji, ingest, deduplikacija). Tracker modela, LLM obrada, vesti i sajt
-dolaze u fazama F2–F5.
+**Stanje:** F1 (ingest, deduplikacija) radi u produkciji i čeka kapiju od 7 dana; F2 (tracker
+modela) je implementiran. LLM obrada, vesti i sajt dolaze u fazama F3–F5.
 
 ## Preduslovi
 
@@ -30,8 +30,19 @@ cd pipeline && uv sync
 uv run --env-file ../.env python -m aitracker.run
 ```
 
-Pokretanje samo primenjuje migracije, preuzima stavke iz izvora u `config/sources.yaml` i upisuje
-red u tabelu `runs`. Ponovno pokretanje ne pravi duplikate.
+Pokretanje primenjuje migracije, preuzima vesti i modele iz izvora u `config/sources.yaml` i
+upisuje red u tabelu `runs`. Ponovno pokretanje ne pravi duplikate.
+
+## Pregled sličnih imena modela
+
+Model čije ime liči na postojeći model iste organizacije ne ulazi u tracker sam, nego u
+`review_queue` (SPEC 10.1). Red se rešava ručno:
+
+```bash
+uv run --env-file ../.env python -m aitracker.review
+```
+
+Za svaku stavku biraš: `s` spoji sa ponuđenim modelom, `n` napravi novi model, `o` odbaci.
 
 ## Testovi i provere
 
@@ -58,8 +69,12 @@ pipeline/
     db.py                 konekcija i runner migracija
     normalize.py          kanonski URL, hash sadržaja
     dedup.py              upis dokumenata bez duplikata
-    sources/              klijenti izvora (RSS, Hacker News)
+    identity.py           identitet modela: postojeći / sličan / novi
+    tracker.py            upis modela, aliasa i istorije cena
+    review.py             CLI za review_queue
+    sources/              klijenti izvora (RSS, Hacker News, OpenRouter, Hugging Face)
   tests/fixtures/         stvarni odgovori izvora
+eval/                     šabloni i skripte za evaluaciju (oznake unosi vlasnik)
 .github/workflows/        ci.yml (ruff, mypy, pytest), daily.yml (cron 05:00 UTC)
 ```
 

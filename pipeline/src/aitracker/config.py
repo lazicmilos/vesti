@@ -27,10 +27,12 @@ class SourceConfig(BaseModel):
     weight: float = Field(default=1.0, ge=0.5, le=1.5)
     enabled: bool = True
     min_points: int = 20  # samo za Hacker News
+    min_likes: int = 1000  # samo za Hugging Face
 
 
 class SourcesFile(BaseModel):
     lookback_hours: int = 72
+    org_aliases: dict[str, str] = {}
     sources: list[SourceConfig]
 
 

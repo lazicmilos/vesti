@@ -10,9 +10,18 @@ from psycopg.types.json import Jsonb
 from aitracker.config import SourceConfig, SourcesFile, database_url, load_sources, setup_logging
 from aitracker.db import Conn, connect, migrate
 from aitracker.dedup import insert_new, update_hn_points
-from aitracker.sources.base import EmptySource, PoliteClient, Source, SourceError
+from aitracker.sources.base import (
+    EmptySource,
+    ModelSource,
+    PoliteClient,
+    Source,
+    SourceError,
+)
 from aitracker.sources.hackernews import HackerNewsSource
+from aitracker.sources.huggingface import HuggingFaceSource
+from aitracker.sources.openrouter import OpenRouterSource
 from aitracker.sources.rss import RssSource
+from aitracker.tracker import upsert_models
 
 log = logging.getLogger("aitracker.run")
 EMPTY_DAYS_LIMIT = 3  # NFR-R-003
@@ -28,6 +37,7 @@ class Ctx:
 @dataclass
 class StepResult:
     new_docs: int = 0
+    new_models: int = 0
     errors: list[dict[str, str]] = field(default_factory=list)
 
 
@@ -36,6 +46,14 @@ def build_source(cfg: SourceConfig, client: PoliteClient) -> Source:
         return RssSource(cfg.name, cfg.url, client)
     if cfg.name == "hackernews":
         return HackerNewsSource(cfg.name, cfg.url, client, cfg.min_points)
+    raise SourceError(f"nema klijenta za izvor {cfg.name}")
+
+
+def build_model_source(cfg: SourceConfig, client: PoliteClient) -> ModelSource:
+    if cfg.name == "openrouter":
+        return OpenRouterSource(cfg.name, cfg.url, client)
+    if cfg.name == "huggingface":
+        return HuggingFaceSource(cfg.name, cfg.url, client, cfg.min_likes)
     raise SourceError(f"nema klijenta za izvor {cfg.name}")
 
 
@@ -59,7 +77,7 @@ def sync_sources(conn: Conn, config: SourcesFile) -> dict[str, int]:
 
 
 def ingest(conn: Conn, ctx: Ctx) -> StepResult:
-    """Koraci 1 i 2: preuzimanje po izvoru (izolovano) i upis bez duplikata."""
+    """Preuzimanje po izvoru (izolovano), upis dokumenata bez duplikata i upis modela."""
     result = StepResult()
     ids = sync_sources(conn, ctx.config)
     since = ctx.now - timedelta(hours=ctx.config.lookback_hours)
@@ -67,20 +85,30 @@ def ingest(conn: Conn, ctx: Ctx) -> StepResult:
     enabled = sorted((c for c in ctx.config.sources if c.enabled), key=lambda c: c.role == "signal")
     for cfg in enabled:
         try:
-            items = build_source(cfg, ctx.client).fetch(since)
-            with conn.transaction():
-                if cfg.role == "signal":
-                    count = update_hn_points(conn, items)
-                else:
-                    count = insert_new(conn, ids[cfg.name], items)
-                    result.new_docs += count
+            if cfg.role == "tracker":
+                models = build_model_source(cfg, ctx.client).fetch_models()
+                with conn.transaction():
+                    count, queued = upsert_models(
+                        conn, cfg.name, ids[cfg.name], models, ctx.config.org_aliases
+                    )
+                result.new_models += count
+                fetched, extra = len(models), {"review_queue": queued}
+            else:
+                items = build_source(cfg, ctx.client).fetch(since)
+                with conn.transaction():
+                    if cfg.role == "signal":
+                        count = update_hn_points(conn, items)
+                    else:
+                        count = insert_new(conn, ids[cfg.name], items)
+                        result.new_docs += count
+                fetched, extra = len(items), {}
         except EmptySource as exc:
             result.errors.append({"source": cfg.name, "kind": "empty", "message": str(exc)})
         except SourceError as exc:
             result.errors.append({"source": cfg.name, "kind": "error", "message": str(exc)})
         else:
             log.info("izvor obrađen", extra={"data": {
-                "source": cfg.name, "items": len(items), "written": count}})
+                "source": cfg.name, "items": fetched, "written": count, **extra}})
     return result
 
 
@@ -110,7 +138,8 @@ def run(conn: Conn, ctx: Ctx) -> str:
     try:
         result = ingest(conn, ctx)
     except Exception as exc:
-        _close_run(conn, run_id, "failed", 0, [{"kind": "fatal", "message": type(exc).__name__}])
+        fatal = [{"kind": "fatal", "message": type(exc).__name__}]
+        _close_run(conn, run_id, "failed", StepResult(), fatal)
         raise
     partial = False
     for error in result.errors:
@@ -120,20 +149,20 @@ def run(conn: Conn, ctx: Ctx) -> str:
             partial = True
             error["message"] += f" ({EMPTY_DAYS_LIMIT} dana zaredom)"
     status = "partial" if partial else "ok"
-    _close_run(conn, run_id, status, result.new_docs, result.errors)
+    _close_run(conn, run_id, status, result, result.errors)
     log.info("pokretanje završeno", extra={"data": {
         "run_id": run_id, "status": status, "new_docs": result.new_docs,
-        "errors": result.errors}})
+        "new_models": result.new_models, "errors": result.errors}})
     return status
 
 
 def _close_run(
-    conn: Conn, run_id: int, status: str, new_docs: int, errors: list[dict[str, str]]
+    conn: Conn, run_id: int, status: str, result: StepResult, errors: list[dict[str, str]]
 ) -> None:
     conn.execute(
-        "UPDATE runs SET finished_at = now(), status = %s, new_docs = %s, errors = %s "
-        "WHERE id = %s",
-        (status, new_docs, Jsonb(errors), run_id),
+        "UPDATE runs SET finished_at = now(), status = %s, new_docs = %s, new_models = %s, "
+        "errors = %s WHERE id = %s",
+        (status, result.new_docs, result.new_models, Jsonb(errors), run_id),
     )
 
 

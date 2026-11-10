@@ -9,6 +9,7 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "pydantic>=2.7",
     "pyyaml>=6.0",
+    "rapidfuzz>=3.14.6",
 ]
 
 [dependency-groups]

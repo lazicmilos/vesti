@@ -2,7 +2,8 @@
 
 import time
 from collections.abc import Callable
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Protocol
 from urllib.parse import urlsplit
 from urllib.robotparser import RobotFileParser
@@ -37,6 +38,29 @@ class Source(Protocol):
     name: str
 
     def fetch(self, since: datetime) -> list[RawItem]: ...
+
+
+class ModelItem(BaseModel):
+    """Model kako ga opisuje strukturirani izvor; polje koje izvor ne navodi je None (FR-003)."""
+
+    raw_name: str  # identifikator u izvoru, npr. "openai/gpt-5"
+    name: str
+    org: str | None = None
+    aliases: list[str] = []  # drugi nazivi istog modela koje izvor sam navodi
+    released_at: date | None = None
+    params_b: Decimal | None = None
+    context_window: int | None = None
+    price_in: Decimal | None = None  # USD po 1M tokena
+    price_out: Decimal | None = None
+    license: str | None = None
+    open_weights: bool | None = None
+    source_url: str
+
+
+class ModelSource(Protocol):
+    name: str
+
+    def fetch_models(self) -> list[ModelItem]: ...
 
 
 class PoliteClient:

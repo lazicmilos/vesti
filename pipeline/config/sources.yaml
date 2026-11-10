@@ -1,7 +1,21 @@
 # Izvori (SPEC odeljak 9). URL-ovi provereni 10. 11. 2026; fixture za svaki je u tests/fixtures/.
-# OpenRouter i Hugging Face (uloga tracker) dodaju se u F2.
 lookback_hours: 72        # koliko unazad ingest gleda; deduplikacija čini ponavljanje bezopasnim
+# Različiti nazivi iste organizacije po izvorima (mala slova) → zajednički ključ.
+# Koristi se samo za pravilo sličnosti iz SPEC 10.1; prikazani naziv se ne menja.
+org_aliases:
+  meta-llama: meta
+  deepseek-ai: deepseek
+  zai-org: z.ai
+  minimaxai: minimax
+  mistralai: mistral
 sources:
+  # Tracker izvori idu prvi; OpenRouter pre Hugging Face-a jer nosi cene i context window.
+  - {name: openrouter, kind: api, role: tracker, url: "https://openrouter.ai/api/v1/models"}
+  - name: huggingface
+    kind: api
+    role: tracker
+    url: "https://huggingface.co/api/models"
+    min_likes: 1000       # prag popularnosti; ispod njega je šum
   - {name: openai-blog,   kind: rss, role: both, weight: 1.5, url: "https://openai.com/news/rss.xml"}
   - {name: deepmind-blog, kind: rss, role: both, weight: 1.5, url: "https://deepmind.google/blog/rss.xml"}
   - {name: mistral-blog,  kind: rss, role: both, weight: 1.5, url: "https://mistral.ai/rss.xml"}
