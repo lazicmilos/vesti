@@ -3,7 +3,7 @@
 ```
 Naziv dokumenta:  Specifikacija za implementaciju — AI Tracker (radni naziv)
 Oznaka:           SPEC-AIT-001
-Verzija:          1.0
+Verzija:          1.1
 Datum:            10.11.2026.
 Autor:            Miloš Lazić
 Status:           Odobreno za implementaciju
@@ -12,6 +12,7 @@ Status:           Odobreno za implementaciju
 | Verzija | Datum | Autor | Opis izmene |
 | --- | --- | --- | --- |
 | 1.0 | 10.11.2026. | Miloš Lazić | Prva verzija za implementaciju |
+| 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 
 ---
 
@@ -30,6 +31,15 @@ Ovaj dokument je jedini izvor istine za projekat. Pročitaj ga ceo pre prvog com
 7. Tajne idu isključivo u env promenljive i GitHub Secrets. `.env` je u `.gitignore`. Nikad ne loguj ključeve.
 8. Kad naiđeš na odluku koju ovaj dokument ne pokriva: ako je reverzibilna i lokalna, odluči i zapiši je u opis PR-a; ako utiče na šemu, troškove, izvore ili javni interfejs, **pitaj**.
 9. Testovi nikad ne pristupaju mreži. Svi testovi rade nad fixture fajlovima.
+10. **Podela uloga modela.** Kod piše Opus 5.5 (`/model opus 5.5`). Fable 5.2 (`/model fable 5.2`) pregleda velike i bitne delove pre spajanja u `main`. Model menja vlasnik; agent ne može sam da ga promeni. Pregled je obavezan za:
+    - svaki PR na kapiji faze (odeljak 14);
+    - šemu baze i migracije (odeljak 8);
+    - identitet modela (10.1) i upis u `review_queue`;
+    - LLM klijent, keš i budžet (odeljak 11, NFR-C-001);
+    - format JSON izvoza (12.1);
+    - svaki PR veći od ~400 linija.
+
+    Nalaz pregleda se upisuje u PR kao komentar; autor odgovara na svaki nalaz izmenom ili obrazloženjem.
 
 ---
 
