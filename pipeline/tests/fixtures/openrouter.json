@@ -1,0 +1,1213 @@
+{
+ "data": [
+  {
+   "id": "nex-agi/nex-n2.6",
+   "canonical_slug": "nex-agi/nex-n2.6-20261110",
+   "hugging_face_id": "nex-agi/Nex-N2.6",
+   "name": "Nex AGI: Nex-N2.6",
+   "created": 1794282379,
+   "description": "Nex-N2.6 is an agentic model from Nex AGI, built on [GLM-5.3-Flash](https://huggingface.co/zai-org/GLM-5.3-Flash-BF16) with about 321B parameters. It is suited for computer use, coding, and long-horizon tasks that involve tools. Compared with...",
+   "context_length": 262144,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Other",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.00000012",
+    "completion": "0.0000004",
+    "input_cache_read": "0.000000024"
+   },
+   "top_provider": {
+    "context_length": 262144,
+    "max_completion_tokens": 235929,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "logprobs",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "default_parameters": {
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "top_k": 40
+   },
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/nex-agi/nex-n2.6-20261110/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "reasoning": {
+    "mandatory": true,
+    "supported_efforts": [
+     "high",
+     "medium"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "anthropic/claude-sonnet-5.5",
+   "canonical_slug": "anthropic/claude-sonnet-5.5-20260928",
+   "hugging_face_id": null,
+   "name": "Anthropic: Claude Sonnet 5.5",
+   "created": 1790618686,
+   "description": "Claude Sonnet 5.5 is Anthropic's Sonnet-class model for well-scoped everyday work, succeeding Claude Sonnet 5 as a direct upgrade. It is especially strong at building features, fixing bugs, and producing...",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "file"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Claude",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.000002",
+    "completion": "0.00001",
+    "web_search": "0.01",
+    "input_cache_read": "0.0000001",
+    "input_cache_write": "0.0000025",
+    "input_cache_write_1h": "0.000004"
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "stop",
+    "structured_outputs",
+    "tool_choice",
+    "tools",
+    "verbosity"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/anthropic/claude-sonnet-5.5-20260928/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "benchmarks": {
+    "design_arena": [
+     {
+      "arena": "agents",
+      "category": "androidnative",
+      "elo": 1276,
+      "win_rate": 59.8,
+      "rank": 5
+     },
+     {
+      "arena": "agents",
+      "category": "blender3d",
+      "elo": 1272,
+      "win_rate": 60.8,
+      "rank": 3
+     },
+     {
+      "arena": "agents",
+      "category": "codetovideo",
+      "elo": 1351,
+      "win_rate": 72.7,
+      "rank": 2
+     },
+     {
+      "arena": "agents",
+      "category": "mobileapps",
+      "elo": 1266,
+      "win_rate": 57.7,
+      "rank": 4
+     },
+     {
+      "arena": "agents",
+      "category": "pdf",
+      "elo": 1245,
+      "win_rate": 58.7,
+      "rank": 7
+     },
+     {
+      "arena": "agents",
+      "category": "spreadsheet",
+      "elo": 1294,
+      "win_rate": 54.9,
+      "rank": 5
+     },
+     {
+      "arena": "agents",
+      "category": "webapps",
+      "elo": 1282,
+      "win_rate": 57.2,
+      "rank": 7
+     },
+     {
+      "arena": "models",
+      "category": "3d",
+      "elo": 1398,
+      "win_rate": 54.3,
+      "rank": 5
+     },
+     {
+      "arena": "models",
+      "category": "codecategories",
+      "elo": 1347,
+      "win_rate": 56.6,
+      "rank": 6
+     },
+     {
+      "arena": "models",
+      "category": "dataviz",
+      "elo": 1362,
+      "win_rate": 64.4,
+      "rank": 3
+     },
+     {
+      "arena": "models",
+      "category": "gamedev",
+      "elo": 1393,
+      "win_rate": 60.9,
+      "rank": 5
+     },
+     {
+      "arena": "models",
+      "category": "svg",
+      "elo": 1303,
+      "win_rate": 56.5,
+      "rank": 6
+     },
+     {
+      "arena": "models",
+      "category": "uicomponent",
+      "elo": 1386,
+      "win_rate": 64.9,
+      "rank": 2
+     },
+     {
+      "arena": "models",
+      "category": "website",
+      "elo": 1315,
+      "win_rate": 54.6,
+      "rank": 6
+     }
+    ],
+    "artificial_analysis": {
+     "intelligence_index": 54.5,
+     "coding_index": null,
+     "agentic_index": null
+    }
+   },
+   "reasoning": {
+    "mandatory": true,
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "medium",
+     "low"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "anthropic/claude-sonnet-5",
+   "canonical_slug": "anthropic/claude-sonnet-5-20260630",
+   "hugging_face_id": null,
+   "name": "Anthropic: Claude Sonnet 5",
+   "created": 1782843083,
+   "description": "Sonnet 5 is Anthropic's most capable Sonnet-class model, with frontier performance across coding, agents, and professional work. It supports adaptive thinking with selectable reasoning effort levels (low, medium, high, max,...",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "file"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Claude",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.000002",
+    "completion": "0.00001",
+    "web_search": "0.01",
+    "input_cache_read": "0.0000002",
+    "input_cache_write": "0.0000025",
+    "input_cache_write_1h": "0.000004"
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "stop",
+    "structured_outputs",
+    "tool_choice",
+    "tools",
+    "verbosity"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/anthropic/claude-sonnet-5-20260630/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "benchmarks": {
+    "design_arena": [
+     {
+      "arena": "agents",
+      "category": "agenticgamedev",
+      "elo": 1170,
+      "win_rate": 51.6,
+      "rank": 8
+     },
+     {
+      "arena": "agents",
+      "category": "androidnative",
+      "elo": 1221,
+      "win_rate": 53.7,
+      "rank": 12
+     },
+     {
+      "arena": "agents",
+      "category": "blender3d",
+      "elo": 1004,
+      "win_rate": 33,
+      "rank": 21
+     },
+     {
+      "arena": "agents",
+      "category": "codetovideo",
+      "elo": 1122,
+      "win_rate": 42.3,
+      "rank": 19
+     },
+     {
+      "arena": "agents",
+      "category": "fullstack",
+      "elo": 1229,
+      "win_rate": 53.3,
+      "rank": 11
+     },
+     {
+      "arena": "agents",
+      "category": "godotgamedev",
+      "elo": 1225,
+      "win_rate": 54.1,
+      "rank": 13
+     },
+     {
+      "arena": "agents",
+      "category": "htmlslides",
+      "elo": 1114,
+      "win_rate": 53.7,
+      "rank": 9
+     },
+     {
+      "arena": "agents",
+      "category": "mobileapps",
+      "elo": 1208,
+      "win_rate": 50.2,
+      "rank": 18
+     },
+     {
+      "arena": "agents",
+      "category": "pdf",
+      "elo": 1215,
+      "win_rate": 53.6,
+      "rank": 13
+     },
+     {
+      "arena": "agents",
+      "category": "python-pptxslides",
+      "elo": 1164,
+      "win_rate": 48.9,
+      "rank": 17
+     },
+     {
+      "arena": "agents",
+      "category": "spreadsheet",
+      "elo": 1151,
+      "win_rate": 42.9,
+      "rank": 15
+     },
+     {
+      "arena": "agents",
+      "category": "webapps",
+      "elo": 1225,
+      "win_rate": 51.9,
+      "rank": 15
+     },
+     {
+      "arena": "models",
+      "category": "3d",
+      "elo": 1244,
+      "win_rate": 53.1,
+      "rank": 32
+     },
+     {
+      "arena": "models",
+      "category": "asciiart",
+      "elo": 1204,
+      "win_rate": 51,
+      "rank": 26
+     },
+     {
+      "arena": "models",
+      "category": "codecategories",
+      "elo": 1269,
+      "win_rate": 52.2,
+      "rank": 28
+     },
+     {
+      "arena": "models",
+      "category": "dataviz",
+      "elo": 1250,
+      "win_rate": 52.8,
+      "rank": 35
+     },
+     {
+      "arena": "models",
+      "category": "gamedev",
+      "elo": 1269,
+      "win_rate": 51,
+      "rank": 23
+     },
+     {
+      "arena": "models",
+      "category": "svg",
+      "elo": 1191,
+      "win_rate": 49.4,
+      "rank": 33
+     },
+     {
+      "arena": "models",
+      "category": "uicomponent",
+      "elo": 1271,
+      "win_rate": 53.5,
+      "rank": 32
+     },
+     {
+      "arena": "models",
+      "category": "website",
+      "elo": 1269,
+      "win_rate": 52,
+      "rank": 28
+     }
+    ],
+    "artificial_analysis": {
+     "intelligence_index": null,
+     "coding_index": 71.5,
+     "agentic_index": 43.6
+    }
+   },
+   "reasoning": {
+    "mandatory": false,
+    "default_enabled": true,
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "none"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "anthropic/claude-fable-5.2",
+   "canonical_slug": "anthropic/claude-fable-5.2-20261109",
+   "hugging_face_id": null,
+   "name": "Anthropic: Claude Fable 5.2",
+   "created": 1794253781,
+   "description": "Claude Fable 5.2 is Anthropic's most capable model for the most demanding technical work, with gains over Fable 5.1 in coding, reasoning, and vision. In prerelease testing it completed otherwise-infeasible...",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "file"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Claude",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.000008",
+    "completion": "0.00004",
+    "web_search": "0.01",
+    "input_cache_read": "0.0000002",
+    "input_cache_write": "0.00001",
+    "input_cache_write_1h": "0.000016"
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "stop",
+    "structured_outputs",
+    "tool_choice",
+    "tools",
+    "verbosity"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/anthropic/claude-fable-5.2-20261109/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "benchmarks": {
+    "design_arena": [],
+    "artificial_analysis": {
+     "intelligence_index": 64.6,
+     "coding_index": null,
+     "agentic_index": null
+    }
+   },
+   "reasoning": {
+    "mandatory": true,
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "medium",
+     "low"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "anthropic/claude-fable-5.2:batch",
+   "canonical_slug": "anthropic/claude-fable-5.2-20261109",
+   "hugging_face_id": null,
+   "name": "Anthropic: Claude Fable 5.2 (batch)",
+   "created": 1794253781,
+   "description": "Claude Fable 5.2 is Anthropic's most capable model for the most demanding technical work, with gains over Fable 5.1 in coding, reasoning, and vision. In prerelease testing it completed otherwise-infeasible...",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "file"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Claude",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.000004",
+    "completion": "0.00002",
+    "web_search": "0.01",
+    "input_cache_read": "0.0000001",
+    "input_cache_write": "0.000005",
+    "input_cache_write_1h": "0.000008"
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "stop",
+    "structured_outputs",
+    "tool_choice",
+    "tools",
+    "verbosity"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/anthropic/claude-fable-5.2-20261109/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/batches"
+   ],
+   "benchmarks": {
+    "design_arena": [],
+    "artificial_analysis": {
+     "intelligence_index": 64.6,
+     "coding_index": null,
+     "agentic_index": null
+    }
+   },
+   "reasoning": {
+    "mandatory": true,
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "medium",
+     "low"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "thinkingmachines/inkling-2-small:free",
+   "canonical_slug": "thinkingmachines/inkling-2-small-20261107",
+   "hugging_face_id": null,
+   "name": "Thinking Machines: Inkling 2 Small (free)",
+   "created": 1794261847,
+   "description": "Inkling 2 Small is a multimodal mixture-of-experts reasoning model from Thinking Machines Lab, with 17B active parameters out of 594B total. It is the first model in the second Inkling...",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Other",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0",
+    "completion": "0"
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 131072,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "seed",
+    "stop",
+    "temperature",
+    "tools",
+    "top_p"
+   ],
+   "default_parameters": {
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "repetition_penalty": null
+   },
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/thinkingmachines/inkling-2-small-20261107/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "benchmarks": {
+    "design_arena": [],
+    "artificial_analysis": {
+     "intelligence_index": 30.6,
+     "coding_index": null,
+     "agentic_index": null
+    }
+   },
+   "reasoning": {
+    "mandatory": true,
+    "default_enabled": true,
+    "supported_efforts": [
+     "max",
+     "high",
+     "medium",
+     "low",
+     "minimal"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "~openai/gpt-luna-latest",
+   "canonical_slug": "~openai/gpt-luna-latest",
+   "alias_target": {
+    "name": "OpenAI: GPT-6 Luna",
+    "slug": "openai/gpt-6-luna"
+   },
+   "hugging_face_id": null,
+   "name": "OpenAI: GPT Luna Latest",
+   "created": 1789130922,
+   "description": "This model always redirects to the latest model in the GPT Luna family.",
+   "context_length": 1050000,
+   "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+     "file",
+     "image",
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Router",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.0000001",
+    "completion": "0.0000005",
+    "web_search": "0.01",
+    "input_cache_read": "0.00000001",
+    "input_cache_write": "0.000000125",
+    "overrides": [
+     {
+      "min_prompt_tokens": 272000,
+      "prompt": "0.0000002",
+      "completion": "0.00000075",
+      "input_cache_read": "0.00000002",
+      "input_cache_write": "0.00000025"
+     }
+    ]
+   },
+   "top_provider": {
+    "context_length": 1050000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "seed",
+    "structured_outputs",
+    "tool_choice",
+    "tools",
+    "verbosity"
+   ],
+   "default_parameters": {
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "repetition_penalty": null
+   },
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/~openai/gpt-luna-latest/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "reasoning": {
+    "mandatory": false,
+    "default_enabled": true,
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "none"
+    ],
+    "default_effort": "medium"
+   }
+  },
+  {
+   "id": "openrouter/auto",
+   "canonical_slug": "openrouter/auto",
+   "hugging_face_id": null,
+   "name": "Auto Router",
+   "created": 1793885889,
+   "description": "Auto is OpenRouter’s flagship model router, built for general-purpose usage. It adapts to each request, choosing cost-optimal models and adjusting reasoning effort. It balances task difficulty, benchmark results, live prices,...",
+   "context_length": 2000000,
+   "architecture": {
+    "modality": "text+image+file+audio+video->text+image",
+    "input_modalities": [
+     "text",
+     "image",
+     "audio",
+     "file",
+     "video"
+    ],
+    "output_modalities": [
+     "text",
+     "image"
+    ],
+    "tokenizer": "Router",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "-1",
+    "completion": "-1"
+   },
+   "top_provider": {
+    "context_length": null,
+    "max_completion_tokens": null,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "include_reasoning",
+    "logit_bias",
+    "logprobs",
+    "max_tokens",
+    "min_p",
+    "prediction",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_a",
+    "top_k",
+    "top_logprobs",
+    "top_p",
+    "web_search_options"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/openrouter/auto/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ]
+  },
+  {
+   "id": "deepseek/deepseek-v4.1-flash-1017",
+   "canonical_slug": "deepseek/deepseek-v4.1-flash-20261017",
+   "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "name": "DeepSeek: DeepSeek V4.1 Flash 1017",
+   "created": 1792225624,
+   "description": "DeepSeek V4.1 Flash 1017 is the October 17, 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek under the `deepseek-flash` API model name. V4.1 Flash is a sparse mixture-of-experts model...",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "DeepSeek",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.000000006",
+    "completion": "0.0000005",
+    "input_cache_read": "0.000000005"
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 943718,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "include_reasoning",
+    "logit_bias",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_p",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/deepseek/deepseek-v4.1-flash-20261017/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "benchmarks": {
+    "design_arena": [
+     {
+      "arena": "agents",
+      "category": "spreadsheet",
+      "elo": 1304,
+      "win_rate": 55,
+      "rank": 4
+     },
+     {
+      "arena": "models",
+      "category": "3d",
+      "elo": 1346,
+      "win_rate": 47.3,
+      "rank": 10
+     },
+     {
+      "arena": "models",
+      "category": "asciiart",
+      "elo": 1232,
+      "win_rate": 47.6,
+      "rank": 20
+     },
+     {
+      "arena": "models",
+      "category": "codecategories",
+      "elo": 1288,
+      "win_rate": 48.8,
+      "rank": 18
+     },
+     {
+      "arena": "models",
+      "category": "dataviz",
+      "elo": 1263,
+      "win_rate": 50.3,
+      "rank": 29
+     },
+     {
+      "arena": "models",
+      "category": "gamedev",
+      "elo": 1259,
+      "win_rate": 44.4,
+      "rank": 27
+     },
+     {
+      "arena": "models",
+      "category": "svg",
+      "elo": 1251,
+      "win_rate": 52.3,
+      "rank": 18
+     },
+     {
+      "arena": "models",
+      "category": "uicomponent",
+      "elo": 1293,
+      "win_rate": 50,
+      "rank": 18
+     },
+     {
+      "arena": "models",
+      "category": "website",
+      "elo": 1295,
+      "win_rate": 51.9,
+      "rank": 16
+     }
+    ],
+    "artificial_analysis": {
+     "intelligence_index": 28.6,
+     "coding_index": null,
+     "agentic_index": null
+    }
+   },
+   "reasoning": {
+    "mandatory": false,
+    "default_enabled": true,
+    "supported_efforts": [
+     "max",
+     "high",
+     "low",
+     "none"
+    ],
+    "default_effort": "high"
+   }
+  },
+  {
+   "id": "qwen/qwen3-coder",
+   "canonical_slug": "qwen/qwen3-coder-480b-a35b-07-25",
+   "hugging_face_id": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+   "name": "Qwen: Qwen3 Coder 480B A35B",
+   "created": 1753230546,
+   "description": "Qwen3-Coder-480B-A35B-Instruct is a Mixture-of-Experts (MoE) code generation model developed by the Qwen team. It is optimized for agentic coding tasks such as function calling, tool use, and long-context reasoning over...",
+   "context_length": 262144,
+   "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": "Qwen3",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.0000003",
+    "completion": "0.000001",
+    "input_cache_read": "0.0000001"
+   },
+   "top_provider": {
+    "context_length": 262144,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "logit_bias",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "default_parameters": {},
+   "supported_voices": null,
+   "knowledge_cutoff": "2025-06-30",
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/qwen/qwen3-coder-480b-a35b-07-25/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ],
+   "benchmarks": {
+    "design_arena": [
+     {
+      "arena": "models",
+      "category": "codecategories",
+      "elo": 1137,
+      "win_rate": 61.2,
+      "rank": 94
+     },
+     {
+      "arena": "models",
+      "category": "dataviz",
+      "elo": 1084,
+      "win_rate": 54.9,
+      "rank": 108
+     },
+     {
+      "arena": "models",
+      "category": "gamedev",
+      "elo": 1090,
+      "win_rate": 58.7,
+      "rank": 99
+     },
+     {
+      "arena": "models",
+      "category": "uicomponent",
+      "elo": 1107,
+      "win_rate": 61.4,
+      "rank": 96
+     },
+     {
+      "arena": "models",
+      "category": "website",
+      "elo": 1155,
+      "win_rate": 61.7,
+      "rank": 93
+     }
+    ]
+   }
+  },
+  {
+   "id": "openai/gpt-audio",
+   "canonical_slug": "openai/gpt-audio",
+   "hugging_face_id": "",
+   "name": "OpenAI: GPT Audio",
+   "created": 1768862569,
+   "description": "The gpt-audio model is OpenAI's first generally available audio model. The new snapshot features an upgraded decoder for more natural sounding voices and maintains better voice consistency. Audio is priced...",
+   "context_length": 128000,
+   "architecture": {
+    "modality": "text+audio->text+audio",
+    "input_modalities": [
+     "text",
+     "audio"
+    ],
+    "output_modalities": [
+     "text",
+     "audio"
+    ],
+    "tokenizer": "GPT",
+    "instruct_type": null
+   },
+   "pricing": {
+    "prompt": "0.0000025",
+    "completion": "0.00001",
+    "audio": "0.000032",
+    "audio_output": "0.000064"
+   },
+   "top_provider": {
+    "context_length": 128000,
+    "max_completion_tokens": 16384,
+    "is_moderated": true
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "logit_bias",
+    "logprobs",
+    "max_tokens",
+    "presence_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_logprobs",
+    "top_p"
+   ],
+   "default_parameters": {
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "repetition_penalty": null
+   },
+   "supported_voices": null,
+   "knowledge_cutoff": null,
+   "expiration_date": null,
+   "links": {
+    "details": "/api/v1/models/openai/gpt-audio/endpoints"
+   },
+   "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+   ]
+  }
+ ],
+ "total_count": 465,
+ "links": {
+  "next": null
+ }
+}
