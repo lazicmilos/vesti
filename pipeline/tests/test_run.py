@@ -161,6 +161,32 @@ def test_run_tudji_prazni_dani_se_ne_racunaju(conn: Conn) -> None:
 
 
 @pytest.mark.db
+def test_run_tracker_izvori_upisuju_modele_i_broje_se_u_runs(conn: Conn) -> None:
+    config = SourcesFile(sources=[
+        SourceConfig(name="openrouter", kind="api", role="tracker",
+                     url="https://or.example/models"),
+        SourceConfig(name="huggingface", kind="api", role="tracker",
+                     url="https://hf.example/api/models"),
+    ])
+    bodies = {"or.example": fixture_bytes("openrouter.json"),
+              "hf.example": fixture_bytes("huggingface.json")}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        return httpx.Response(200, content=bodies[request.url.host])
+
+    status = run(conn, Ctx(now=NOW, config=config, client=offline_client(handler)))
+
+    # OpenRouter: 9 stavki, od toga claude-sonnet-5.5 liči na claude-sonnet-5 → pregled.
+    # Hugging Face: 5 novih modela.
+    assert status == "ok"
+    assert conn.execute("SELECT new_models FROM runs ORDER BY id DESC").fetchone() == (13,)
+    assert conn.execute("SELECT raw_name FROM review_queue").fetchall() == [
+        ("anthropic/claude-sonnet-5.5",)]
+
+
+@pytest.mark.db
 def test_run_neocekivan_izuzetak_oznacava_run_kao_failed(conn: Conn) -> None:
     ctx = _ctx()
     del ctx.config  # izaziva AttributeError usred ingest-a
