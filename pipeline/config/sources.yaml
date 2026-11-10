@@ -1,0 +1,18 @@
+# Izvori (SPEC odeljak 9). URL-ovi provereni 10. 11. 2026; fixture za svaki je u tests/fixtures/.
+# OpenRouter i Hugging Face (uloga tracker) dodaju se u F2.
+lookback_hours: 72        # koliko unazad ingest gleda; deduplikacija čini ponavljanje bezopasnim
+sources:
+  - {name: openai-blog,   kind: rss, role: both, weight: 1.5, url: "https://openai.com/news/rss.xml"}
+  - {name: deepmind-blog, kind: rss, role: both, weight: 1.5, url: "https://deepmind.google/blog/rss.xml"}
+  - {name: mistral-blog,  kind: rss, role: both, weight: 1.5, url: "https://mistral.ai/rss.xml"}
+  # Nemaju RSS (404 na proveri); bez HTML scrapinga u v1, zato isključeni.
+  - {name: anthropic-blog, kind: rss, role: both, weight: 1.5, enabled: false, url: "https://www.anthropic.com/news"}
+  - {name: meta-ai-blog,   kind: rss, role: both, weight: 1.5, enabled: false, url: "https://ai.meta.com/blog/"}
+  - {name: the-verge,    kind: rss, role: news, url: "https://www.theverge.com/rss/index.xml"}
+  - {name: ars-technica, kind: rss, role: news, url: "https://feeds.arstechnica.com/arstechnica/index"}
+  - {name: techcrunch,   kind: rss, role: news, url: "https://techcrunch.com/feed/"}
+  - name: hackernews
+    kind: api
+    role: signal
+    url: "https://hn.algolia.com/api/v1/search_by_date"
+    min_points: 20        # ispod ovoga signal ne menja skor primetno, a odgovor staje u jednu stranu

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><feed
+	xmlns="http://www.w3.org/2005/Atom"
+	xmlns:thr="http://purl.org/syndication/thread/1.0"
+	xml:lang="en-US"
+	>
+	<title type="text">The Verge</title>
+	<subtitle type="text">The Verge is about technology and how it makes us feel. Founded in 2011, we offer our audience everything from breaking news to reviews to award-winning features and investigations, on our site, in video, and in podcasts.</subtitle>
+
+	<updated>2026-11-10T00:28:49+00:00</updated>
+
+	<link rel="alternate" type="text/html" href="https://www.theverge.com" />
+	<id>https://www.theverge.com/rss/index.xml</id>
+	<link rel="self" type="application/atom+xml" href="https://www.theverge.com/rss/index.xml" />
+
+	<icon>https://platform.theverge.com/wp-content/uploads/sites/2/2025/01/verge-rss-large_80b47e.png?w=150&amp;h=150&amp;crop=1</icon>
+		<entry>
+			
+			<author>
+				<name>Andrew Liszewski</name>
+			</author>
+			
+			<title type="html"><![CDATA[Seagate’s FireCuda Forge moves your data between a hard drive and SSD for better performance]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/tech/1029665/seagate-firecuda-forge-hybrid-ssd-hard-drive-storage-alkemi-technology" />
+			<id>https://www.theverge.com/?p=1029665</id>
+			<updated>2026-11-09T14:11:53-05:00</updated>
+			<published>2026-11-10T06:01:00-05:00</published>
+			<category scheme="https://www.theverge.com" term="Gadgets" /><category scheme="https://www.theverge.com" term="News" /><category scheme="https://www.theverge.com" term="Tech" />
+							<summary type="html"><![CDATA[Seagate announced a new external storage solution, called the FireCuda Forge, that combines the speed benefits of an SSD with the affordability of a higher-capacity hard drive. The Forge is the first drive that's powered by the company's new Alkemi intelligent storage platform, which learns how your data is used and relocates the files you're [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="The Seagate FireCuda Forge external drive against a yellow background." data-caption="" data-portal-copyright="Image: Seagate" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/11/seagate1.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">Seagate announced a new external storage solution, called the FireCuda Forge, that combines the speed benefits of an SSD with the affordability of a higher-capacity hard drive. The Forge is the first drive that's powered by the company's new Alkemi intelligent storage platform, which learns how your data is used and relocates the files you're currently using, or use most frequently, to the faster SSD.</p>
+<p class="wp-block-paragraph">The FireCuda Forge is now available through Seagate's online store with an 8TB hard drive for $699, or a 20TB hard drive for $899, that are both user-replaceable. However, the NVMe SSD is not included, and in the middle of a <a href="https://www.theverge.com/news/839353/pc-ram-shortage-pricing-spike-news">memory shortage</a>, t …</p>
+<p><a href="https://www.theverge.com/tech/1029665/seagate-firecuda-forge-hybrid-ssd-hard-drive-storage-alkemi-technology">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Tim Stevens</name>
+			</author>
+			
+			<title type="html"><![CDATA[Real Motors’ Project Ares is a cyberpunk fantasy made real]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/transportation/1029837/real-motors-project-ares-electric-motorcycle-first-ride" />
+			<id>https://www.theverge.com/?p=1029837</id>
+			<updated>2026-11-09T17:14:18-05:00</updated>
+			<published>2026-11-10T06:00:00-05:00</published>
+			<category scheme="https://www.theverge.com" term="Electric Bikes" /><category scheme="https://www.theverge.com" term="Hands-on" /><category scheme="https://www.theverge.com" term="Reviews" /><category scheme="https://www.theverge.com" term="Rideables" /><category scheme="https://www.theverge.com" term="Tech" /><category scheme="https://www.theverge.com" term="Transportation" />
+							<summary type="html"><![CDATA[Electrification has done wonderful things for motorcycle design. By getting rid of the engine and the fuel tank that supports it, designers have the freedom to do whatever they want, and the results have been occasionally brilliant. I'm a big fan of the vaguely retrofuturistic stylings of the Maeving RM2 and the quirky minimalism of [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="" data-caption="" data-portal-copyright="" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/11/2026-Real-Motors-Project-Ares-009.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">Electrification has done wonderful things for motorcycle design. By getting rid of the engine and the fuel tank that supports it, designers have the freedom to do whatever they want, and the results have been occasionally brilliant. I'm a big fan of the vaguely retrofuturistic stylings of the <a href="https://www.theverge.com/transportation/1013049/maeving-rm2-electric-motorcycle-review-specs">Maeving RM2</a> and the quirky minimalism of <a href="https://www.theverge.com/2021/9/3/22655751/bmw-ce-02-mini-bike-concept-electric-iaa-mobility-2021">BMW's CE 02</a>, but nothing yet has quite left me so awestruck as Project Ares.</p>
+<p class="wp-block-paragraph">This all-electric machine is the first offering from South Carolina-based Real Motors, and it bears a shape that would not look out of place on the streets of Night City, the main setting in <a href="https://www.theverge.com/22157995/cyberpunk-2077-cd-projekt-red-review-xbox-ps4-ps5-pc-stadia"><em>Cyberpunk 2077</em></a>. There's a little bit of <em>Star  …</em></p>
+<p><a href="https://www.theverge.com/transportation/1029837/real-motors-project-ares-electric-motorcycle-first-ride">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+			<entry>
+			
+			<author>
+				<name>Stevie Bonifield</name>
+			</author>
+			
+			<title type="html"><![CDATA[David Ellison says AI could be the ‘biggest creative unlock in modern history’]]></title>
+			<link rel="alternate" type="text/html" href="https://www.theverge.com/entertainment/1030510/paramount-skydance-david-ellison-ai" />
+			<id>https://www.theverge.com/?p=1030510</id>
+			<updated>2026-11-09T19:28:49-05:00</updated>
+			<published>2026-11-09T19:28:49-05:00</published>
+			<category scheme="https://www.theverge.com" term="AI" /><category scheme="https://www.theverge.com" term="Business" /><category scheme="https://www.theverge.com" term="Entertainment" /><category scheme="https://www.theverge.com" term="Film" /><category scheme="https://www.theverge.com" term="News" />
+							<summary type="html"><![CDATA[During Paramount Skydance's latest earnings call, CEO David Ellison said "it's hard to imagine" AI won't have a bigger impact on the film industry than CGI. In response to a question about the company's outlook for AI, Ellison said: "I think when you zoom out and look at production, AI really has the potential to [&#8230;]]]></summary>
+			
+							<content type="html">
+											<![CDATA[
+
+						
+<figure>
+
+<img alt="" data-caption="" data-portal-copyright="Image: Variety via Getty Images" data-has-syndication-rights="1" src="https://platform.theverge.com/wp-content/uploads/sites/2/2026/11/gettyimages-2274329497.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100" />
+	<figcaption>
+		</figcaption>
+</figure>
+<p class="wp-block-paragraph">During Paramount Skydance's <a href="https://edge.media-server.com/mmc/p/pijdt4q9/">latest earnings call</a>, CEO David Ellison said "it's hard to imagine" AI won't have a bigger impact on the film industry than CGI. In response to a question about the company's outlook for AI, Ellison said:</p>
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow">
+<p class="wp-block-paragraph">"I think when you zoom out and look at production, AI really has the potential to be the biggest creative unlock in modern history. The last time we saw anything close to this was really the, you know, advent of CGI and digital composites in the early 90s. That technology gave birth to amazing stories like <em>Jurassic Park</em> and <em>Terminator 2</em>, and it's hard to imagine that AI is not going to have a more significant i …</p></blockquote>
+<p><a href="https://www.theverge.com/entertainment/1030510/paramount-skydance-david-ellison-ai">Read the full story at The Verge.</a></p>
+						]]>
+									</content>
+			
+					</entry>
+	</feed>
