@@ -1,0 +1,27 @@
+name: Dnevni pipeline
+
+on:
+  schedule:
+    - cron: "0 5 * * *" # 05:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: daily-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: pipeline
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked --no-dev --python 3.12
+      - run: uv run --no-dev python -m aitracker.run

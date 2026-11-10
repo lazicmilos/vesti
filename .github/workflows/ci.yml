@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: aitracker
+          POSTGRES_PASSWORD: aitracker
+          POSTGRES_DB: aitracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aitracker"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://aitracker:aitracker@localhost:5432/aitracker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked --python 3.12
+      - run: uv run ruff check .
+      - run: uv run mypy
+      # Prag 80% (NFR-M-002) nad celim paketom; izveštaj po modulu je u logu.
+      - run: uv run pytest --cov=aitracker --cov-branch --cov-report=term-missing --cov-fail-under=80
+  # Web lint i build dodaju se u F5.
