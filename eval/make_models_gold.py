@@ -26,7 +26,8 @@ def main() -> int:
         print(f"{OUT} već postoji; obriši ga ručno ako stvarno hoćeš novi uzorak.")
         return 1
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
-        rows = conn.execute("SELECT slug, name, org, source_url FROM models ORDER BY slug").fetchall()
+        query = "SELECT slug, name, org, source_url FROM models ORDER BY slug"
+        rows = conn.execute(query).fetchall()
     sample = sorted(random.Random(SEED).sample(rows, min(SAMPLE_SIZE, len(rows))))
     with OUT.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
