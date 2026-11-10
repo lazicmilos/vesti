@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[OpenAI News]]></title>
+        <description><![CDATA[The OpenAI blog]]></description>
+        <link>https://openai.com/news</link>
+        <image>
+            <url>https://openai.com/apple-icon.png</url>
+            <title>OpenAI News</title>
+            <link>https://openai.com/news</link>
+        </image>
+        <generator>OpenAI</generator>
+        <lastBuildDate>Tue, 10 Nov 2026 11:32:23 GMT</lastBuildDate>
+        <atom:link href="https://openai.com/news/rss.xml" rel="self" type="application/rss+xml"/>
+        <language><![CDATA[en-US]]></language>
+        <item>
+            <title><![CDATA[Closing the AI guidance gap in education]]></title>
+            <description><![CDATA[Lessons from OpenAI’s EMEA education partnerships and new ThinkYoung research. Supporting teachers, AI literacy and independent learning.]]></description>
+            <link>https://openai.com/index/closing-ai-guidance-gap-education</link>
+            <guid isPermaLink="true">https://openai.com/index/closing-ai-guidance-gap-education</guid>
+            <category><![CDATA[Company]]></category>
+            <pubDate>Tue, 10 Nov 2026 09:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[ChatGPT Enterprise now available in AWS Marketplace]]></title>
+            <description><![CDATA[ChatGPT Enterprise is now available through AWS Marketplace, helping organizations simplify procurement through existing AWS purchasing and billing relationships.]]></description>
+            <link>https://openai.com/index/chatgpt-enterprise-aws-marketplace</link>
+            <guid isPermaLink="true">https://openai.com/index/chatgpt-enterprise-aws-marketplace</guid>
+            <category><![CDATA[Product]]></category>
+            <pubDate>Mon, 09 Nov 2026 19:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Control Room: A central system to track and stop model workloads across our research infrastructure]]></title>
+            <description><![CDATA[Learn how OpenAI’s Control Room tracks model workloads across our research infrastructure and can rapidly stop them when safety or security concerns arise.]]></description>
+            <link>https://openai.com/index/control-room</link>
+            <guid isPermaLink="true">https://openai.com/index/control-room</guid>
+            <category><![CDATA[Safety]]></category>
+            <pubDate>Mon, 09 Nov 2026 13:00:00 GMT</pubDate>
+        </item>
+    </channel>
+</rss>

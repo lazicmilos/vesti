@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>TechCrunch</title>
+	<atom:link href="https://techcrunch.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://techcrunch.com/</link>
+	<description>Startup and Technology News</description>
+	<lastBuildDate>Tue, 10 Nov 2026 07:00:00 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.9.11</generator>
+
+<image>
+	<url>https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png?w=32</url>
+	<title>TechCrunch</title>
+	<link>https://techcrunch.com/</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>Otter AI can now follow conversations across 30+ languages</title>
+		<link>https://techcrunch.com/2026/11/09/otter-ai-can-now-follow-conversations-across-30-languages/</link>
+		
+		<dc:creator><![CDATA[Lauren Forristal]]></dc:creator>
+		<pubDate>Tue, 10 Nov 2026 07:00:00 +0000</pubDate>
+				<category><![CDATA[AI]]></category>
+		<category><![CDATA[otter ai]]></category>
+		<guid isPermaLink="false">https://techcrunch.com/?p=3185546</guid>
+
+					<description><![CDATA[Otter AI just added support for 27 languages and revealed an upcoming feature that can follow along if speakers switch between languages.]]></description>
+		
+		
+		
+			</item>
+		<item>
+		<title>California&#8217;s proposed &#8216;billionaire tax&#8217; fails to pass</title>
+		<link>https://techcrunch.com/2026/11/09/californias-proposed-billionaire-tax-fails-to-pass/</link>
+		
+		<dc:creator><![CDATA[Lucas Ropek]]></dc:creator>
+		<pubDate>Tue, 10 Nov 2026 05:18:43 +0000</pubDate>
+				<category><![CDATA[Government & Policy]]></category>
+		<category><![CDATA[billionaires]]></category>
+		<category><![CDATA[election]]></category>
+		<guid isPermaLink="false">https://techcrunch.com/?p=3183699</guid>
+
+					<description><![CDATA[California voters rejected Proposition 40, the one-time 5% tax on billionaires, the AP reported Monday. Tech leaders outspent backers roughly 10 to 1 to defeat it, and the founders and economists TechCrunch interviewed before the vote were split on whether it would have driven out wealthy residents or just trimmed their fortunes.]]></description>
+		
+		
+		
+			</item>
+		<item>
+		<title>Jensen Huang&#8217;s alleged honeypot scandal has inspired some top-notch memes</title>
+		<link>https://techcrunch.com/2026/11/09/jensen-huangs-alleged-honeypot-scandal-has-inspired-some-top-notch-memes/</link>
+		
+		<dc:creator><![CDATA[Dominic-Madori Davis, Lucas Ropek]]></dc:creator>
+		<pubDate>Tue, 10 Nov 2026 04:34:15 +0000</pubDate>
+				<category><![CDATA[Media & Entertainment]]></category>
+		<category><![CDATA[nvidia]]></category>
+		<category><![CDATA[AI]]></category>
+		<guid isPermaLink="false">https://techcrunch.com/?p=3186594</guid>
+
+					<description><![CDATA[The internet is having a field day with Nvidia's Jensen Huang's alleged honeypot scandal.]]></description>
+		
+		
+		
+			</item>
+	</channel>
+</rss>
