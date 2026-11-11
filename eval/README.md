@@ -32,4 +32,28 @@ organizacija. Upiši broj kandidata ako je isti model, Enter ako nije, `p` da pr
 sačuvaš i izađeš (nastavak sa `--start N`). Skripta upisuje samo kolonu `duplicate_of` i samo
 ono što izabereš. Kandidati su pomoć, nisu odluka: ako sumnjaš, otvori oba linka.
 
+### Zlatne vrednosti uz pomoć asistenta (SPEC 0.6, izuzetak)
+
+Kolone `gold_*` se ne pišu ručno u `models_gold.csv`, nego idu kroz `models_gold_evidence.csv`:
+jedan red je jedno polje jednog modela, sa vrednošću, zvaničnim URL-om i doslovnim citatom.
+
+1. Asistentu (npr. Cowork) daj `models_gold_evidence.csv` i uputstvo iz `COWORK_PROMPT.md`.
+   On popunjava `value`, `official_url` i `quote`.
+2. Za svaki red sa vrednošću otvori `official_url`, nađi citat (Ctrl+F) i proveri da vrednost
+   iz njega stvarno sledi. U `owner_check` upiši `da` ili `ne`. Ako je vrednost pogrešna,
+   ispravi je i upiši `da`.
+3. Prenesi potvrđene vrednosti u `models_gold.csv`:
+
+```bash
+cd pipeline && uv run python ../eval/apply_gold_evidence.py
+```
+
+Skripta proverava format i da svaka vrednost ima URL i citat, upisuje samo redove sa
+`owner_check = da` i ispisuje koliko redova još čeka proveru. Prazno polje znači da zvanični
+izvor ne navodi vrednost; ako asistent propusti vrednost koja postoji, evaluacija će LLM-ovu
+tačnu vrednost brojati kao izmišljenu, što je greška na strogu stranu.
+
+Zašto ne može bez provere: evaluacija meri koliko LLM izmišlja. Ako zlatne vrednosti napravi
+LLM bez provere, ista zapamćena greška bi se brojala kao tačna.
+
 Skupovi `cluster_pairs.csv` i `summaries_review.csv` i skripta `run_eval.py` dolaze u F3 i F4.

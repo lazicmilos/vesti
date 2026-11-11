@@ -3,7 +3,7 @@
 ```
 Naziv dokumenta:  Specifikacija za implementaciju — AI Tracker (radni naziv)
 Oznaka:           SPEC-AIT-001
-Verzija:          1.3
+Verzija:          1.4
 Datum:            11.11.2026.
 Autor:            Miloš Lazić
 Status:           Odobreno za implementaciju
@@ -15,6 +15,7 @@ Status:           Odobreno za implementaciju
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 | 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
 | 1.3 | 11.11.2026. | Miloš Lazić | Pravilo 0.1: sledeća faza sme da počne na grani dok kapija prethodne čeka samo na vreme |
+| 1.4 | 11.11.2026. | Miloš Lazić | Pravilo 0.6: asistent sme da predloži zlatne vrednosti sa citatom; u skup ulaze tek posle provere vlasnika |
 
 ---
 
@@ -29,7 +30,7 @@ Ovaj dokument je jedini izvor istine za projekat. Pročitaj ga ceo pre prvog com
 3. Jedan zadatak = jedna grana = jedan PR do ~400 linija. Commit poruke po Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 4. **Ne menjaj šemu baze, format JSON izvoza ni javne interfejse modula** bez novog ADR-a u `docs/adr/` i odobrenja vlasnika.
 5. **Ne izmišljaj činjenice o eksternim API-jima.** Pre pisanja klijenta za izvor, pozovi endpoint, sačuvaj stvarni odgovor kao fixture u `pipeline/tests/fixtures/` i piši parser prema njemu. Ako se endpoint razlikuje od onoga što ovaj dokument pretpostavlja, zabeleži razliku u PR-u.
-6. **Ne pravi zlatne oznake za evaluaciju.** Skupove u `eval/` označava vlasnik ručno. Ti praviš šablone (CSV sa kandidatima) i skripte koje računaju metrike. Oznake koje generiše model čine evaluaciju besmislenom.
+6. **Ne pravi zlatne oznake za evaluaciju.** Skupove u `eval/` označava vlasnik ručno. Ti praviš šablone (CSV sa kandidatima) i skripte koje računaju metrike. Oznake koje generiše model čine evaluaciju besmislenom. **Izuzetak za `models_gold.csv`:** asistent sme da predloži vrednost samo uz zvanični URL i doslovan citat sa te stranice (`eval/models_gold_evidence.csv`); vrednost ulazi u zlatni skup tek kad vlasnik na stranici proveri citat. Vrednost bez citata ostaje prazna. Metod se navodi uz objavljene rezultate evaluacije.
 7. Tajne idu isključivo u env promenljive i GitHub Secrets. `.env` je u `.gitignore`. Nikad ne loguj ključeve.
 8. Kad naiđeš na odluku koju ovaj dokument ne pokriva: ako je reverzibilna i lokalna, odluči i zapiši je u opis PR-a; ako utiče na šemu, troškove, izvore ili javni interfejs, **pitaj**.
 9. Testovi nikad ne pristupaju mreži. Svi testovi rade nad fixture fajlovima.
