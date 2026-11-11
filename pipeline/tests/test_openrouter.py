@@ -47,7 +47,7 @@ def test_zahtev_salje_model_temperaturu_nula_i_kljuc() -> None:
 
     body = json.loads(seen[0].content)
     assert body == {"model": "anthropic/claude-haiku-5.5", "messages": MESSAGES,
-                    "temperature": 0, "max_tokens": 300}
+                    "temperature": 0, "max_tokens": 300, "reasoning": {"enabled": False}}
     assert seen[0].headers["Authorization"] == "Bearer kljuc"
 
 
@@ -91,3 +91,11 @@ def test_provider_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("OPENROUTER_API_KEY")
     with pytest.raises(ConfigError):
         provider_from_env()
+
+
+def test_bez_rezonovanja_svi_izlazni_tokeni_su_odgovor() -> None:
+    name = "openrouter_chat_deepseek-v4.1-flash_no_reasoning.json"
+    completion = _provider(_fixture(name)).complete(MESSAGES, 300)
+
+    assert completion.text.startswith('{"odgovor": "Kontekstni prozor')
+    assert completion.output_tokens == 99  # usage.completion_tokens_details.reasoning_tokens = 0

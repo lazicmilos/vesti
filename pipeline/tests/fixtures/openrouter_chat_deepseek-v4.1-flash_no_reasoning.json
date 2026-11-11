@@ -1,0 +1,46 @@
+{
+  "id": "gen-1794427772-bejbq4Bcwq1kzcQvyLGi",
+  "object": "chat.completion",
+  "created": 1794427772,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "Cohere",
+  "system_fingerprint": "vllm-0.33.0rc1.dev421+g2b009fc6d-tp2-53b4252c",
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"odgovor\": \"Kontekstni prozor je maksimalna količina teksta (tokena) koju jezički model može istovremeno da primi i obradi, uključujući i upit i prethodni razgovor. Sve što pređe tu granicu model ne vidi, pa se stariji delovi razgovora moraju skratiti ili sažeti.\"}",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 35,
+    "completion_tokens": 99,
+    "total_tokens": 134,
+    "cost": 7.2165e-05,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 7.2165e-05,
+      "upstream_inference_prompt_cost": 6.825e-06,
+      "upstream_inference_completions_cost": 6.534e-05
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

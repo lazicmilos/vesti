@@ -49,8 +49,10 @@ class OpenRouterProvider:
         )
 
     def complete(self, messages: list[Message], max_tokens: int) -> Completion:
+        # Bez skrivenog rezonovanja: troši max_tokens pre odgovora (prazan ili odsečen JSON),
+        # a za ekstrakciju i sažetak nije potrebno. Provereno na sva tri kandidata.
         body = {"model": self.model, "messages": messages, "temperature": 0,
-                "max_tokens": max_tokens}
+                "max_tokens": max_tokens, "reasoning": {"enabled": False}}
         try:
             response = self._http.post(URL, json=body)
         except httpx.TransportError as exc:
