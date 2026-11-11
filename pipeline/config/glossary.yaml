@@ -1,0 +1,9 @@
+# Rečnik termina za promptove (SPEC 11.4): engleski termin → srpski termin koji se dosledno koristi.
+context window: kontekstni prozor
+open-weight: otvorene težine
+fine-tuning: fino podešavanje
+inference: inferencija
+reasoning model: model za rezonovanje
+multimodal: multimodalni
+benchmark: benchmark
+token: token

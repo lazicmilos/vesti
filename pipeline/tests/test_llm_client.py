@@ -82,8 +82,11 @@ def test_load_prices_cita_yaml(tmp_path: Path) -> None:
     assert load_prices(path) == {"m": Price(Decimal("0.25"), Decimal("1.25"))}
 
 
-def test_load_prices_prazan_fajl_u_repou_je_validan() -> None:
-    assert load_prices() == {}
+def test_load_prices_iz_repoa_ima_cenu_za_svakog_kandidata() -> None:
+    prices = load_prices()
+
+    assert prices["anthropic/claude-haiku-5.5"] == Price(Decimal("0.10"), Decimal("0.50"))
+    assert len(prices) == 3
 
 
 def test_model_fields_traze_eksplicitan_null_i_odbijaju_visak() -> None:

@@ -40,6 +40,12 @@ def load_sources(path: Path = PIPELINE_ROOT / "config" / "sources.yaml") -> Sour
     return SourcesFile.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
 
 
+def load_glossary(path: Path = PIPELINE_ROOT / "config" / "glossary.yaml") -> str:
+    """Rečnik (SPEC 11.4) kao lista za promptove: jedan red `- engleski → srpski`."""
+    terms: dict[str, str] = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return "\n".join(f"- {en} → {sr}" for en, sr in terms.items())
+
+
 def database_url() -> str:
     url = os.environ.get("DATABASE_URL")
     if not url:
