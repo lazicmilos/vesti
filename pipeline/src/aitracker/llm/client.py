@@ -36,6 +36,7 @@ class Completion:
     text: str
     input_tokens: int
     output_tokens: int
+    cost_usd: Decimal | None = None  # stvarna naplata, ako je provajder javlja
 
 
 class Provider(Protocol):
@@ -120,10 +121,12 @@ class LlmClient:
         messages: list[Message] = [{"role": "user", "content": prompt}]
         outputs: list[str] = []
         input_tokens = output_tokens = 0
+        cost = Decimal(0)
         for attempt in range(2):
-            completion = self._call(messages)
+            completion, call_cost = self._call(messages)
             input_tokens += completion.input_tokens
             output_tokens += completion.output_tokens
+            cost += call_cost
             outputs.append(completion.text)
             try:
                 result = schema.model_validate_json(_FENCE.sub("", completion.text))
@@ -137,19 +140,24 @@ class LlmClient:
                                                 "Vrati samo ispravan JSON po šemi."},
                 ]
                 continue
-            cost = self.price.cost(input_tokens, output_tokens)
             cache.put(self.conn, key, prompt_name, model, cache.CachedCall(
                 result.model_dump(mode="json"), input_tokens, output_tokens, cost))
             return result, Usage(input_tokens, output_tokens, cost, cached=False)
         raise ValidationFailed(prompt_name, outputs, error)
 
-    def _call(self, messages: list[Message]) -> Completion:
+    def _cost(self, completion: Completion) -> Decimal:
+        """Stvarna naplata provajdera ima prednost; inače obračun po `llm_prices.yaml`."""
+        if completion.cost_usd is not None:
+            return completion.cost_usd
+        return self.price.cost(completion.input_tokens, completion.output_tokens)
+
+    def _call(self, messages: list[Message]) -> tuple[Completion, Decimal]:
         worst = self.price.cost(worst_case_input_tokens(messages), self.max_tokens)
         self.budget.check(worst)
         completion = self.provider.complete(messages, self.max_tokens)
-        cost = self.price.cost(completion.input_tokens, completion.output_tokens)
+        cost = self._cost(completion)
         self.budget.add(cost)
         log.info("LLM poziv", extra={"data": {
             "model": self.provider.model, "input_tokens": completion.input_tokens,
             "output_tokens": completion.output_tokens, "cost_usd": str(cost)}})
-        return completion
+        return completion, cost

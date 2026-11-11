@@ -177,3 +177,17 @@ def test_prekoracen_budzet_ne_zove_provajdera(conn: Conn, prompts: Path) -> None
         client.complete_json("model_fields_v1", {"text": "najava"}, ModelFields)
 
     assert provider.calls == []
+
+
+@pytest.mark.db
+def test_stvarna_naplata_provajdera_ima_prednost_nad_cenovnikom(conn: Conn, prompts: Path) -> None:
+    class BilledProvider(FakeProvider):
+        def complete(self, messages: list[Message], max_tokens: int) -> Completion:
+            completion = super().complete(messages, max_tokens)
+            return Completion(completion.text, 1000, 500, cost_usd=Decimal("0.0123"))
+
+    client = _client(conn, BilledProvider(json.dumps(FIELDS)), prompts)
+
+    _, usage = client.complete_json("model_fields_v1", {"text": "najava"}, ModelFields)
+
+    assert usage.cost_usd == client.budget.spent_now == Decimal("0.0123")
