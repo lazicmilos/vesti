@@ -63,6 +63,7 @@ Testovi ne pristupaju mreži: rade nad stvarnim odgovorima izvora sačuvanim u
 ```
 pipeline/
   config/sources.yaml     izvori, težine, uloge
+  config/llm_prices.yaml  cena LLM modela po 1M tokena (bez cene model ne radi)
   migrations/             numerisani SQL fajlovi
   src/aitracker/
     run.py                orkestrator, upis u `runs`
@@ -72,6 +73,8 @@ pipeline/
     identity.py           identitet modela: postojeći / sličan / novi
     tracker.py            upis modela, aliasa i istorije cena
     review.py             CLI za review_queue
+    budget.py             mesečni budžet za LLM (5 USD), provera pre svakog poziva
+    llm/                  klijent (keš → budžet → poziv → šema), keš, šeme izlaza, promptovi
     sources/              klijenti izvora (RSS, Hacker News, OpenRouter, Hugging Face)
   tests/fixtures/         stvarni odgovori izvora
 eval/                     šabloni i skripte za evaluaciju (oznake unosi vlasnik)
