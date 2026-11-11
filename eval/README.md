@@ -39,9 +39,12 @@ jedan red je jedno polje jednog modela, sa vrednošću, zvaničnim URL-om i dosl
 
 1. Asistentu (npr. Cowork) daj `models_gold_evidence.csv` i uputstvo iz `COWORK_PROMPT.md`.
    On popunjava `value`, `official_url` i `quote`.
-2. Za svaki red sa vrednošću otvori `official_url`, nađi citat (Ctrl+F) i proveri da vrednost
-   iz njega stvarno sledi. U `owner_check` upiši `da` ili `ne`. Ako je vrednost pogrešna,
-   ispravi je i upiši `da`.
+2. Za svaki red sa vrednošću proveri da citat postoji na `official_url` i da vrednost iz
+   njega stvarno sledi; u `owner_check` upiši `da` ili `ne`. **Po odluci vlasnika (SPEC 1.5)**
+   postojanje citata proverava deterministička skripta, a `owner_check` popunjava AI agent
+   drugog modela od onog koji je vrednosti prikupio. Uz svaki objavljen rezultat na ovom skupu
+   piše: „zlatne vrednosti prikupio i proverio AI, uz mehaničku proveru citata; nisu ručno
+   proverene“.
 3. Prenesi potvrđene vrednosti u `models_gold.csv`:
 
 ```bash
