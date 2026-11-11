@@ -1,0 +1,54 @@
+{
+  "id": "gen-1794426652-CUgmE3QN7P3B5nb592rY",
+  "object": "chat.completion",
+  "created": 1794426652,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "Wafer",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\"jezik\": \"srpski\", \"broj\": 7}",
+        "refusal": null,
+        "reasoning": "We need answer only JSON. Need comply. User asks in Serbian? \"Vrati samo JSON {\"jezik\": \"srpski\", \"broj\": 7}, bez dodatnog teksta.\" Means return only JSON. Need output exactly that. Ensure valid JSON. No extra.",
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "text": "We need answer only JSON. Need comply. User asks in Serbian? \"Vrati samo JSON {\"jezik\": \"srpski\", \"broj\": 7}, bez dodatnog teksta.\" Means return only JSON. Need output exactly that. Ensure valid JSON. No extra.",
+            "format": "unknown",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 56,
+    "completion_tokens": 76,
+    "total_tokens": 132,
+    "cost": 4.5948e-05,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 4.5948e-05,
+      "upstream_inference_prompt_cost": 2.856e-06,
+      "upstream_inference_completions_cost": 4.3092e-05
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 53,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

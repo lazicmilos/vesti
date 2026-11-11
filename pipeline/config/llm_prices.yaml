@@ -1,0 +1,16 @@
+# Cena LLM modela u USD po 1M tokena, za obračun troška i budžet (NFR-C-001).
+# Ključ je identifikator modela tačno kako ga šalje provajder (LLM_MODEL).
+# Plaćamo preko OpenRoutera, pa je izvor cene njegova lista modela
+# (https://openrouter.ai/api/v1/models, polja pricing.prompt i pricing.completion × 1M).
+# Model bez cene ovde ne može da se koristi: klijent odbija da radi bez obračuna troška.
+models:
+  # Kandidati za blind test (F3), cene proverene 2026-11-11.
+  anthropic/claude-haiku-5.5:
+    input: 0.10  # iznad 100.000 ulaznih tokena OpenRouter naplaćuje 0.50 / 2.50
+    output: 0.50
+  google/gemini-3.1-flash-lite:
+    input: 0.25
+    output: 1.50
+  deepseek/deepseek-v4.1-flash:
+    input: 0.051
+    output: 0.567

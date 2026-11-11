@@ -32,4 +32,41 @@ organizacija. Upiši broj kandidata ako je isti model, Enter ako nije, `p` da pr
 sačuvaš i izađeš (nastavak sa `--start N`). Skripta upisuje samo kolonu `duplicate_of` i samo
 ono što izabereš. Kandidati su pomoć, nisu odluka: ako sumnjaš, otvori oba linka.
 
+### Zlatne vrednosti uz pomoć asistenta (SPEC 0.6, izuzetak)
+
+Kolone `gold_*` se ne pišu ručno u `models_gold.csv`, nego idu kroz `models_gold_evidence.csv`:
+jedan red je jedno polje jednog modela, sa vrednošću, zvaničnim URL-om i doslovnim citatom.
+
+1. Asistentu (npr. Cowork) daj `models_gold_evidence.csv` i uputstvo iz `COWORK_PROMPT.md`.
+   On popunjava `value`, `official_url` i `quote`.
+2. Za svaki red sa vrednošću proveri da citat postoji na `official_url` i da vrednost iz
+   njega stvarno sledi; u `owner_check` upiši `da` ili `ne`. **Po odluci vlasnika (SPEC 1.5)**
+   postojanje citata proverava deterministička skripta, a `owner_check` popunjava AI agent
+   drugog modela od onog koji je vrednosti prikupio. Uz svaki objavljen rezultat na ovom skupu
+   piše: „zlatne vrednosti prikupio i proverio AI, uz mehaničku proveru citata; nisu ručno
+   proverene“.
+3. Prenesi potvrđene vrednosti u `models_gold.csv`:
+
+```bash
+cd pipeline && uv run python ../eval/apply_gold_evidence.py
+```
+
+Skripta proverava format i da svaka vrednost ima URL i citat, upisuje samo redove sa
+`owner_check = da` i ispisuje koliko redova još čeka proveru. Prazno polje znači da zvanični
+izvor ne navodi vrednost; ako asistent propusti vrednost koja postoji, evaluacija će LLM-ovu
+tačnu vrednost brojati kao izmišljenu, što je greška na strogu stranu.
+
+**Konvencije** (odluka vlasnika, 11. 11. 2026.), važe i za oznake i za ekstrakciju:
+
+- Brojevi se pišu kako stoje na stranici: „128K“ je `128000`, „4k“ je `4000`, „1T“ je `1000`
+  (milijardi). Ne pretvara se u „verovatnu“ vrednost (131072, 4096).
+- Licenca bez SPDX oznake se piše imenom licence laboratorije (`llama2`, `gemma`,
+  `modified-mit`), a `proprietary` samo kad stranica kaže da je zatvorena.
+- MoE modeli: `params_b` je ukupan broj parametara (GLM-4.6 je `355`, ne 32 aktivnih).
+- `released_at` je datum zvanične najave, ne datum dostupnosti u API-ju.
+- Modeli porodice Qwen imaju organizaciju `Alibaba Cloud`.
+
+Zašto ne može bez provere: evaluacija meri koliko LLM izmišlja. Ako zlatne vrednosti napravi
+LLM bez provere, ista zapamćena greška bi se brojala kao tačna.
+
 Skupovi `cluster_pairs.csv` i `summaries_review.csv` i skripta `run_eval.py` dolaze u F3 i F4.
