@@ -21,4 +21,15 @@ Format vrednosti: datum `YYYY-MM-DD`; `gold_params_b` u milijardama; cene u USD 
 
 **Kapija F2:** kolona `duplicate_of` je prazna u svih 50 redova (0 duplikata).
 
+### Provera duplikata
+
+```bash
+cd pipeline && uv run --env-file ../.env python ../eval/duplicate_candidates.py
+```
+
+Za svaki model iz uzorka skripta prikaže do 5 najsličnijih modela iz cele baze, iz svih
+organizacija. Upiši broj kandidata ako je isti model, Enter ako nije, `p` da preskočiš, `q` da
+sačuvaš i izađeš (nastavak sa `--start N`). Skripta upisuje samo kolonu `duplicate_of` i samo
+ono što izabereš. Kandidati su pomoć, nisu odluka: ako sumnjaš, otvori oba linka.
+
 Skupovi `cluster_pairs.csv` i `summaries_review.csv` i skripta `run_eval.py` dolaze u F3 i F4.
