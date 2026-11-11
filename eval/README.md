@@ -53,6 +53,16 @@ Skripta proverava format i da svaka vrednost ima URL i citat, upisuje samo redov
 izvor ne navodi vrednost; ako asistent propusti vrednost koja postoji, evaluacija će LLM-ovu
 tačnu vrednost brojati kao izmišljenu, što je greška na strogu stranu.
 
+**Konvencije** (odluka vlasnika, 11. 11. 2026.), važe i za oznake i za ekstrakciju:
+
+- Brojevi se pišu kako stoje na stranici: „128K“ je `128000`, „4k“ je `4000`, „1T“ je `1000`
+  (milijardi). Ne pretvara se u „verovatnu“ vrednost (131072, 4096).
+- Licenca bez SPDX oznake se piše imenom licence laboratorije (`llama2`, `gemma`,
+  `modified-mit`), a `proprietary` samo kad stranica kaže da je zatvorena.
+- MoE modeli: `params_b` je ukupan broj parametara (GLM-4.6 je `355`, ne 32 aktivnih).
+- `released_at` je datum zvanične najave, ne datum dostupnosti u API-ju.
+- Modeli porodice Qwen imaju organizaciju `Alibaba Cloud`.
+
 Zašto ne može bez provere: evaluacija meri koliko LLM izmišlja. Ako zlatne vrednosti napravi
 LLM bez provere, ista zapamćena greška bi se brojala kao tačna.
 
