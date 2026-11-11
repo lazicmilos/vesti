@@ -3,8 +3,8 @@
 ```
 Naziv dokumenta:  Specifikacija za implementaciju — AI Tracker (radni naziv)
 Oznaka:           SPEC-AIT-001
-Verzija:          1.2
-Datum:            10.11.2026.
+Verzija:          1.3
+Datum:            11.11.2026.
 Autor:            Miloš Lazić
 Status:           Odobreno za implementaciju
 ```
@@ -14,6 +14,7 @@ Status:           Odobreno za implementaciju
 | 1.0 | 10.11.2026. | Miloš Lazić | Prva verzija za implementaciju |
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 | 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
+| 1.3 | 11.11.2026. | Miloš Lazić | Pravilo 0.1: sledeća faza sme da počne na grani dok kapija prethodne čeka samo na vreme |
 
 ---
 
@@ -23,7 +24,7 @@ Ovaj dokument je jedini izvor istine za projekat. Pročitaj ga ceo pre prvog com
 
 **Pravila rada (obavezna):**
 
-1. Radi **strogo po fazama** iz odeljka 14. Ne počinji fazu N+1 dok kapija faze N nije prošla i dok vlasnik projekta to ne potvrdi.
+1. Radi **strogo po fazama** iz odeljka 14. Ne počinji fazu N+1 dok kapija faze N nije prošla i dok vlasnik projekta to ne potvrdi. **Izuzetak:** ako je sav posao faze N gotov i kapija čeka samo na protok vremena (npr. 7 uzastopnih dana), faza N+1 sme da počne na grani, ali **ništa iz faze N+1 ne ide u `main`** dok kapija faze N ne prođe. Tako merenje kapije ostaje nad nepromenjenim kodom.
 2. Na kraju svake faze **stani** i napiši izveštaj: šta je urađeno, rezultat kapije (brojevi), otvoreni problemi, šta tražiš od vlasnika. Ne nastavljaj samoinicijativno.
 3. Jedan zadatak = jedna grana = jedan PR do ~400 linija. Commit poruke po Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`).
 4. **Ne menjaj šemu baze, format JSON izvoza ni javne interfejse modula** bez novog ADR-a u `docs/adr/` i odobrenja vlasnika.
