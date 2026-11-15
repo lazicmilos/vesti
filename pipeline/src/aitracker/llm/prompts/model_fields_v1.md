@@ -11,7 +11,7 @@ Iz teksta zvanične najave izvuci podatke o AI modelu **$name** i napiši kratak
 ## Polja
 
 - `org`: organizacija koja je objavila model, kako je imenovana u tekstu.
-- `released_at`: datum izdanja u formatu `YYYY-MM-DD`, samo ako tekst navodi pun datum.
+- `released_at`: datum kada je model $name objavljen ili postao dostupan, u formatu `YYYY-MM-DD`, samo ako ga tekst navodi kao pun datum i jasno ga vezuje za taj model. Datum članka, događaja ili najave nekog drugog modela nije datum izdanja.
 - `params_b`: ukupan broj parametara u milijardama (70B → 70, 1,5T → 1500).
 - `context_window`: kontekstni prozor u tokenima, kao ceo broj (128K → 128000).
 - `price_in`, `price_out`: cena ulaza i izlaza u USD po 1M tokena, samo ako je tekst navodi u toj jedinici.

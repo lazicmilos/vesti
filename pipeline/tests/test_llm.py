@@ -33,7 +33,7 @@ def _reply(content: str, finish_reason: str = "stop") -> httpx.Response:
 def _client(
     conn: Conn, tmp_path: Path, responses: Sequence[httpx.Response | Exception]
 ) -> tuple[LLMClient, list[httpx.Request], Budget]:
-    (tmp_path / "fields_v1.md").write_text("Izvuci polja iz: $text", encoding="utf-8")
+    (tmp_path / "fields_v1.md").write_text("Izvuci polja iz: $text\n$glossary", encoding="utf-8")
     run_id = conn.execute("INSERT INTO runs (started_at) VALUES (%s) RETURNING id", (NOW,))
     budget = Budget(conn, run_id.fetchone()[0], NOW)  # type: ignore[index]
     requests: list[httpx.Request] = []
@@ -66,7 +66,9 @@ def test_success_is_cached_and_charged(conn: Conn, tmp_path: Path) -> None:
     body = json.loads(requests[0].content)
     assert body["temperature"] == 0 and body["max_tokens"] > 0
     assert body["reasoning"] == {"effort": "none"}
-    assert body["messages"][0]["content"] == "Izvuci polja iz: Primer Lab"
+    prompt = body["messages"][0]["content"]
+    assert prompt.startswith("Izvuci polja iz: Primer Lab\n")
+    assert "- context window → kontekstni prozor" in prompt  # rečnik ubacuje klijent
     assert budget.spent() == COST
 
 
