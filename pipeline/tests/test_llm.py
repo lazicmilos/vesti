@@ -65,6 +65,7 @@ def test_success_is_cached_and_charged(conn: Conn, tmp_path: Path) -> None:
     assert len(requests) == 1
     body = json.loads(requests[0].content)
     assert body["temperature"] == 0 and body["max_tokens"] > 0
+    assert body["reasoning"] == {"effort": "none"}
     assert body["messages"][0]["content"] == "Izvuci polja iz: Primer Lab"
     assert budget.spent() == COST
 
