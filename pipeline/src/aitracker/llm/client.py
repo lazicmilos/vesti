@@ -9,14 +9,17 @@ from pathlib import Path
 from string import Template
 
 import httpx
+import yaml
 from pydantic import BaseModel, Field, ValidationError
 
 from aitracker.budget import Budget
+from aitracker.config import PIPELINE_ROOT
 from aitracker.db import Conn
 from aitracker.llm import cache
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 PROMPTS = Path(__file__).parent / "prompts"
+GLOSSARY = PIPELINE_ROOT / "config" / "glossary.yaml"
 log = logging.getLogger("aitracker.llm")
 # Bez max_tokens OpenRouter rezerviše ceo izlazni limit modela i odbija poziv (402) kad je
 # stanje na računu malo. Modeli za rezonovanje troše deo ovoga na razmišljanje.
@@ -64,12 +67,19 @@ class _Response(BaseModel):
     usage: _Usage
 
 
+def render_glossary(path: Path) -> str:
+    """Rečnik kao Markdown lista `- engleski → srpski`, za promenljivu `$glossary` u promptu."""
+    terms: dict[str, str] = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return "\n".join(f"- {en} → {sr}" for en, sr in terms.items())
+
+
 class LLMClient:
     def __init__(
         self, conn: Conn, budget: Budget, model: str, api_key: str,
         transport: httpx.BaseTransport | None = None,
         sleep: Callable[[float], None] = time.sleep,
         prompts: Path = PROMPTS,
+        glossary: Path = GLOSSARY,
     ) -> None:
         self._conn, self._budget, self.model = conn, budget, model
         self._http = httpx.Client(
@@ -77,13 +87,14 @@ class LLMClient:
         )
         self._sleep = sleep
         self._prompts = prompts
+        self._glossary = render_glossary(glossary)
 
     def complete_json[T: BaseModel](
         self, prompt_name: str, variables: dict[str, str], schema: type[T]
     ) -> tuple[T, Usage]:
         """Keš → budžet → poziv; neispravan izlaz dobija jedan retry sa porukom o grešci."""
         template = Template((self._prompts / f"{prompt_name}.md").read_text(encoding="utf-8"))
-        prompt = template.substitute(variables)
+        prompt = template.substitute(variables, glossary=self._glossary)
         key = cache.cache_key(prompt, prompt_name, self.model)
         if (hit := cache.get(self._conn, key)) is not None:
             try:
@@ -123,6 +134,9 @@ class LLMClient:
         body = {
             "model": self.model, "messages": messages, "temperature": 0,
             "max_tokens": MAX_TOKENS, "response_format": {"type": "json_object"},
+            # Rezonovanje je izmereno trošilo svih 2048 tokena nad tekstom od 200 znakova
+            # (finish_reason=length, 7× skuplje); za ekstrakciju i sažetak nije potrebno.
+            "reasoning": {"effort": "none"},
         }
         error = "nepoznata greška"
         for attempt in range(ATTEMPTS):

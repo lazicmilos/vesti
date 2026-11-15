@@ -73,7 +73,7 @@ pipeline/
     tracker.py            upis modela, aliasa i istorije cena
     review.py             CLI za review_queue
     budget.py             mesečni budžet LLM-a (5 USD), trošak se upisuje u `runs`
-    llm/                  klijent (OpenRouter, keš, retry), šeme izlaza, promptovi
+    llm/                  klijent (OpenRouter, keš, retry), šeme izlaza, promptovi (verzija u imenu)
     sources/              klijenti izvora (RSS, Hacker News, OpenRouter, Hugging Face)
   tests/fixtures/         stvarni odgovori izvora
 eval/                     šabloni i skripte za evaluaciju (oznake unosi vlasnik)
