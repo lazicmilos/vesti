@@ -17,6 +17,7 @@ from aitracker.sources.base import (
     Source,
     SourceError,
 )
+from aitracker.sources.fulltext import fill_fulltext
 from aitracker.sources.hackernews import HackerNewsSource
 from aitracker.sources.huggingface import HuggingFaceSource
 from aitracker.sources.openrouter import OpenRouterSource
@@ -25,6 +26,9 @@ from aitracker.tracker import upsert_models
 
 log = logging.getLogger("aitracker.run")
 EMPTY_DAYS_LIMIT = 3  # NFR-R-003
+CONTENT_DAYS = 7  # NFR-L-001
+# Vrste grešaka koje označavaju pokretanje kao `partial`; ostale su obaveštenja.
+PARTIAL_KINDS = {"error"}
 
 
 @dataclass
@@ -101,6 +105,13 @@ def ingest(conn: Conn, ctx: Ctx) -> StepResult:
                     else:
                         count = insert_new(conn, ids[cfg.name], items)
                         result.new_docs += count
+                        # now() je vreme početka transakcije, isto kao fetched_at novih redova.
+                        inserted_at = conn.execute("SELECT now()").fetchone()[0]  # type: ignore[index]
+                # Posle commita: mrežni pozivi ne drže transakciju otvorenom.
+                if cfg.fulltext and cfg.role != "signal" and count:
+                    result.errors += fill_fulltext(
+                        conn, ctx.client, cfg.name, ids[cfg.name], inserted_at
+                    )
                 fetched, extra = len(items), {}
         except EmptySource as exc:
             result.errors.append({"source": cfg.name, "kind": "empty", "message": str(exc)})
@@ -130,6 +141,19 @@ def empty_streak(conn: Conn, run_id: int, source: str, now: datetime) -> bool:
     return bool(row[0] == EMPTY_DAYS_LIMIT - 1)
 
 
+def purge_content(conn: Conn, now: datetime) -> int:
+    """Briše interni tekst dokumenata starijih od 7 dana od obrade (NFR-L-001, SPEC 10 korak 6).
+
+    Dok obrada vesti (F4) ne upisuje `processed_at`, rok se računa od preuzimanja.
+    """
+    cursor = conn.execute(
+        "UPDATE documents SET content = NULL WHERE content IS NOT NULL "
+        "AND coalesce(processed_at, fetched_at) < %s",
+        (now - timedelta(days=CONTENT_DAYS),),
+    )
+    return cursor.rowcount
+
+
 def run(conn: Conn, ctx: Ctx) -> str:
     """Izvršava pipeline, upisuje red u `runs` (NFR-O-001) i vraća status."""
     migrate(conn)
@@ -137,15 +161,16 @@ def run(conn: Conn, ctx: Ctx) -> str:
     run_id: int = row.fetchone()[0]  # type: ignore[index]
     try:
         result = ingest(conn, ctx)
+        purge_content(conn, ctx.now)
     except Exception as exc:
         fatal = [{"kind": "fatal", "message": type(exc).__name__}]
         _close_run(conn, run_id, "failed", StepResult(), fatal)
         raise
     partial = False
     for error in result.errors:
-        if error["kind"] == "error":
+        if error["kind"] in PARTIAL_KINDS:
             partial = True
-        elif empty_streak(conn, run_id, error["source"], ctx.now):
+        elif error["kind"] == "empty" and empty_streak(conn, run_id, error["source"], ctx.now):
             partial = True
             error["message"] += f" ({EMPTY_DAYS_LIMIT} dana zaredom)"
     status = "partial" if partial else "ok"

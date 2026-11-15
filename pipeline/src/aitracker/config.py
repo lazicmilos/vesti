@@ -28,6 +28,7 @@ class SourceConfig(BaseModel):
     enabled: bool = True
     min_points: int = 20  # samo za Hacker News
     min_likes: int = 1000  # samo za Hugging Face
+    fulltext: bool = False  # preuzmi pun tekst stranice za nove dokumente (RSS laboratorija)
 
 
 class SourcesFile(BaseModel):
