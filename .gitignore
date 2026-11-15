@@ -10,3 +10,7 @@ htmlcov/
 node_modules/
 .next/
 out/
+
+# Blind test sadrži pun tekst članaka (NFR-L-001): ostaje lokalno, u repo ide samo zbirni rezultat.
+eval/blind_test.csv
+eval/blind_test_key.json

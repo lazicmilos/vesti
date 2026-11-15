@@ -57,6 +57,10 @@ Skripta piše dva fajla i odbija da pregazi postojeće:
   **Ne otvaraj ga pre nego što oceniš sve redove.** Iste brojke skripta ispisuje na kraju, ali
   one ne otkrivaju koje slovo pripada kom modelu.
 
+Oba fajla su u `.gitignore`: CSV sadrži pun tekst članaka, a on se nikad ne objavljuje
+(NFR-L-001). U repo i README ide samo zbirna tabela po modelu: udeo vernih sažetaka, prosečna
+ocena srpskog, broj neuspelih poziva i trošak.
+
 | Kolona | Ko popunjava | Značenje |
 | --- | --- | --- |
 | `unsupported_claim` | vlasnik | `da` ako sažetak ili naslov tvrdi nešto čega nema u `source_text`; inače `ne` |
