@@ -16,14 +16,15 @@ import random
 import re
 import sys
 from collections import Counter
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
 from aitracker.budget import Budget, BudgetExceeded
 from aitracker.config import database_url, llm_settings
-from aitracker.db import Conn, connect
+from aitracker.db import connect
 from aitracker.llm.client import LLMClient, LLMError
 from aitracker.llm.schemas import EventSummary
 
@@ -39,6 +40,8 @@ DEFAULT_MODELS = (
     "anthropic/claude-haiku-5.5", "openai/gpt-6-luna", "deepseek/deepseek-v4.1-flash",
 )
 LABELS = "ABC"
+MAX_STREAK = 3  # kandidat koji padne ovoliko puta zaredom se izbacuje, da ne troši dalje
+MAX_USD = Decimal("0.50")  # sopstvena granica testa, uz mesečni budžet
 HEADER = ["doc_id", "source_url", "source_text", "label", "title_sr", "summary_sr", "category",
           "mentioned_models", "error", "unsupported_claim", "serbian_quality", "notes"]
 _TAG = re.compile(r"<[^>]+>")
@@ -111,24 +114,74 @@ def write_csv(path: Path, rows: list[list[str]]) -> None:
         writer.writerows(rows)
 
 
-def _run_cost(conn: Conn, run_id: int) -> Decimal:
-    row = conn.execute("SELECT cost_usd FROM runs WHERE id = %s", (run_id,)).fetchone()
-    assert row is not None
-    return Decimal(row[0])
+Summarize = Callable[[str], EventSummary]
+
+
+@dataclass
+class Result:
+    outputs: dict[tuple[int, str], Output] = field(default_factory=dict)
+    ok: Counter[str] = field(default_factory=Counter)
+    failed: Counter[str] = field(default_factory=Counter)
+    cost: dict[str, Decimal] = field(default_factory=dict)
+    status: str = "ok"
+
+
+def run_candidates(
+    docs: list[Doc], summarize: dict[str, Summarize], spent: Callable[[], Decimal],
+    max_usd: Decimal = MAX_USD,
+) -> tuple[list[Doc], Result]:
+    """Svaki dokument kroz svakog kandidata; vraća dokumente koje su obradili svi kandidati.
+
+    `spent` čita ukupan trošak reda u `runs`, pa se računaju i plaćeni neuspeli pokušaji.
+    """
+    result = Result(cost=dict.fromkeys(summarize, Decimal(0)))
+    streak: Counter[str] = Counter()
+    start = spent()
+    try:
+        for i, doc in enumerate(docs, 1):
+            if spent() - start >= max_usd:
+                result.status = "partial"
+                print(f"Prekinuto: dostignuta granica testa od {max_usd} USD")
+                break
+            print(f"[{i}/{len(docs)}] dokument {doc.id}")
+            for model, call in summarize.items():
+                if streak[model] >= MAX_STREAK:
+                    result.outputs[(doc.id, model)] = Output(error="izbačen")
+                    continue
+                before = spent()
+                try:
+                    result.outputs[(doc.id, model)] = Output(call(doc.text))
+                    result.ok[model] += 1
+                    streak[model] = 0
+                except LLMError as exc:
+                    result.outputs[(doc.id, model)] = Output(error=type(exc).__name__)
+                    result.failed[model] += 1
+                    streak[model] += 1
+                    result.status = "partial"
+                finally:  # i kad BudgetExceeded prekine poziv posle plaćenog pokušaja
+                    result.cost[model] += spent() - before
+    except BudgetExceeded as exc:
+        result.status = "partial"
+        print(f"Prekinuto: {exc}")
+    done = [d for d in docs if all((d.id, m) in result.outputs for m in summarize)]
+    return done, result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--models", default=",".join(DEFAULT_MODELS))
-    models = parser.parse_args().models.split(",")
+    parser.add_argument("--docs", type=int, default=SAMPLE_SIZE,
+                        help="broj dokumenata; mali broj za probno pokretanje")
+    parser.add_argument("--max-usd", type=Decimal, default=MAX_USD)
+    args = parser.parse_args()
+    models = list(dict.fromkeys(args.models.split(",")))
     if not 2 <= len(models) <= len(LABELS):
-        print(f"Treba 2–{len(LABELS)} modela, dato {len(models)}.")
+        print(f"Treba 2–{len(LABELS)} različita modela, dato {len(models)}.")
         return 1
     if OUT_CSV.exists() or OUT_KEY.exists():
         print(f"{OUT_CSV.name} ili {OUT_KEY.name} već postoji; obriši ručno za novo pokretanje.")
         return 1
     _, api_key = llm_settings()
-    rng = random.Random(SEED)
     now = datetime.now(UTC)
     with connect(database_url()) as conn:
         rows = conn.execute(
@@ -136,48 +189,44 @@ def main() -> int:
             "JOIN sources s ON s.id = d.source_id "
             "WHERE d.content IS NOT NULL AND d.content <> '' ORDER BY d.id"
         ).fetchall()
-        docs = select([Doc(r[0], r[1], r[2], plain_text(r[3], r[4])) for r in rows], rng)
+        sample = select([Doc(r[0], r[1], r[2], plain_text(r[3], r[4])) for r in rows],
+                        random.Random(SEED), args.docs)
         run_id = conn.execute(
             "INSERT INTO runs (started_at) VALUES (%s) RETURNING id", (now,)
         ).fetchone()[0]  # type: ignore[index]
         budget = Budget(conn, run_id, now)
-        clients = {m: LLMClient(conn, budget, m, api_key) for m in models}
-        outputs: dict[tuple[int, str], Output] = {}
-        ok: Counter[str] = Counter()
-        failed: Counter[str] = Counter()
-        cost = dict.fromkeys(models, Decimal(0))
-        status = "ok"
+
+        def summarizer(model: str) -> Summarize:
+            client = LLMClient(conn, budget, model, api_key)
+            return lambda text: client.complete_json(
+                "event_summary_v1", {"text": text}, EventSummary)[0]
+
+        def spent() -> Decimal:
+            row = conn.execute("SELECT cost_usd FROM runs WHERE id = %s", (run_id,)).fetchone()
+            assert row is not None
+            return Decimal(row[0])
+
+        status = "failed"  # neočekivana greška ili Ctrl-C ne sme da ostavi status `ok`
         try:
-            for i, doc in enumerate(docs, 1):
-                print(f"[{i}/{len(docs)}] dokument {doc.id}")
-                for model in models:
-                    before = _run_cost(conn, run_id)
-                    try:
-                        summary, _ = clients[model].complete_json(
-                            "event_summary_v1", {"text": doc.text}, EventSummary)
-                        outputs[(doc.id, model)] = Output(summary)
-                        ok[model] += 1
-                    except LLMError as exc:
-                        outputs[(doc.id, model)] = Output(error=type(exc).__name__)
-                        failed[model] += 1
-                        status = "partial"
-                    cost[model] += _run_cost(conn, run_id) - before
-        except BudgetExceeded as exc:
-            status = "partial"
-            print(f"Prekinuto: {exc}")
-            done = {d for d, _ in outputs}
-            docs = [d for d in docs if d.id in done and all((d.id, m) in outputs for m in models)]
+            docs, result = run_candidates(
+                sample, {m: summarizer(m) for m in models}, spent, args.max_usd)
+            status = result.status
         finally:
             conn.execute("UPDATE runs SET finished_at = now(), status = %s WHERE id = %s",
                          (status, run_id))
-    csv_rows, mapping = anonymize(docs, outputs, models, rng)
+    stats = {m: {"ok": result.ok[m], "failed": result.failed[m],
+                 "cost_usd": str(result.cost[m])} for m in models}
+    for model, s in stats.items():
+        print(f"  {model}: uspešno {s['ok']}, neuspelo {s['failed']}, trošak {s['cost_usd']} USD")
+    if not docs:
+        print("Nijedan dokument nije obrađen; fajlovi nisu upisani.")
+        return 1
+    # Pravi slučajni brojevi: sa seed-om uzorka bi ključ bio isti pri svakom pokretanju.
+    csv_rows, mapping = anonymize(docs, result.outputs, models, random.SystemRandom())
     write_csv(OUT_CSV, csv_rows)
-    stats = {m: {"ok": ok[m], "failed": failed[m], "cost_usd": str(cost[m])} for m in models}
     OUT_KEY.write_text(json.dumps({"mapping": mapping, "stats": stats}, indent=2,
                                   ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Upisano {len(docs)} dokumenata u {OUT_CSV.name}; ključ je u {OUT_KEY.name}.")
-    for model, s in stats.items():
-        print(f"  {model}: uspešno {s['ok']}, neuspelo {s['failed']}, trošak {s['cost_usd']} USD")
     return 0
 
 

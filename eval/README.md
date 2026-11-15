@@ -44,13 +44,25 @@ cd pipeline && uv run --env-file ../.env python ../eval/blind_test.py
 
 Podrazumevani kandidati: `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna`,
 `deepseek/deepseek-v4.1-flash`. Drugi se zadaju sa `--models a,b,c`. Trošak ide u novi red
-tabele `runs`, pa ulazi u mesečni budžet. Prekoračen budžet prekida test, a u CSV ulaze samo
-dokumenti koje su obradili svi kandidati.
+tabele `runs`, pa ulazi u mesečni budžet. Pre punog testa pokreni probu na nekoliko dokumenata:
+
+```bash
+uv run --env-file ../.env python ../eval/blind_test.py --docs 3
+```
+
+Ograde troška:
+
+- `--max-usd` (podrazumevano 0,50 USD): sopstvena granica testa, proverava se između dokumenata.
+- Kandidat koji padne 3 puta zaredom se izbacuje; njegovi ostali redovi imaju grešku `izbačen`.
+- Prekoračen mesečni budžet prekida test. U CSV ulaze samo dokumenti koje su obradili svi
+  kandidati, a ako nijedan nije obrađen, fajlovi se ne pišu.
+- Prekid (Ctrl-C) ili neočekivana greška zatvara red u `runs` sa statusom `failed`.
 
 Skripta piše dva fajla i odbija da pregazi postojeće:
 
 - `blind_test.csv`: po tri reda za svaki dokument, oznake `A`, `B`, `C`. Mapiranje oznaka na
-  modele je nasumično **za svaki dokument posebno**, pa isto slovo ne znači isti model.
+  modele je nasumično **za svaki dokument posebno** (pravi slučajni brojevi, ne seed uzorka),
+  pa isto slovo ne znači isti model, a ponovljeno pokretanje daje drugi ključ.
   `source_text` je tačno tekst koji je model dobio: tvrdnje se proveravaju prema njemu, ne
   prema članku na linku. Neuspeo poziv ima prazan izlaz i ime greške u koloni `error`.
 - `blind_test_key.json`: mapiranje i, po modelu, broj uspešnih i neuspelih poziva i trošak.

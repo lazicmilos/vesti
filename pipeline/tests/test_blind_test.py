@@ -1,9 +1,23 @@
 import csv
 import random
+from decimal import Decimal
 from pathlib import Path
 
-from blind_test import HEADER, Doc, Output, anonymize, plain_text, select, write_csv
+from blind_test import (
+    HEADER,
+    MAX_STREAK,
+    Doc,
+    Output,
+    Summarize,
+    anonymize,
+    plain_text,
+    run_candidates,
+    select,
+    write_csv,
+)
 
+from aitracker.budget import BudgetExceeded
+from aitracker.llm.client import LLMError
 from aitracker.llm.schemas import EventSummary
 
 MODELS = ["m/one", "m/two", "m/three"]
@@ -60,3 +74,73 @@ def test_write_csv_round_trips(tmp_path: Path) -> None:
 def test_plain_text_strips_html_and_truncates() -> None:
     assert plain_text("Naslov", "<p>Prvi &amp; <b>drugi</b></p>") == "Naslov\n\nPrvi & drugi"
     assert len(plain_text("t", "x" * 20000)) == 8000
+
+
+class Wallet:
+    """Lažni `runs.cost_usd`: svaki poziv kandidata plaća CENT, uspeo ili ne."""
+
+    CENT = Decimal("0.01")
+
+    def __init__(self) -> None:
+        self.total = Decimal(0)
+        self.calls: list[str] = []
+
+    def spent(self) -> Decimal:
+        return self.total
+
+    def ok(self, name: str) -> Summarize:
+        def call(text: str) -> EventSummary:
+            self.calls.append(name)
+            self.total += self.CENT
+            return SUMMARY
+        return call
+
+    def fail(self, name: str, exc: Exception) -> Summarize:
+        def call(text: str) -> EventSummary:
+            self.calls.append(name)
+            self.total += self.CENT
+            raise exc
+        return call
+
+
+def test_failing_candidate_is_dropped_after_streak() -> None:
+    wallet, docs = Wallet(), _docs(lab=10, news=0)
+    done, result = run_candidates(
+        docs, {"good": wallet.ok("good"), "bad": wallet.fail("bad", LLMError("x"))},
+        wallet.spent, max_usd=Decimal(1))
+
+    assert wallet.calls.count("bad") == MAX_STREAK  # ne plaća se za svih 10 dokumenata
+    assert result.failed["bad"] == MAX_STREAK and result.ok["good"] == 10
+    assert result.outputs[(9, "bad")] == Output(error="izbačen")
+    assert len(done) == 10 and result.status == "partial"
+    assert result.cost == {"good": Decimal("0.10"), "bad": Decimal("0.03")}
+
+
+def test_budget_stop_keeps_paid_cost_and_only_complete_docs() -> None:
+    wallet, docs = Wallet(), _docs(lab=3, news=0)
+    exhausted = wallet.fail("b", BudgetExceeded("potrošeno"))
+    calls = iter([wallet.ok("b"), exhausted])
+    done, result = run_candidates(
+        docs, {"a": wallet.ok("a"), "b": lambda text: next(calls)(text)}, wallet.spent,
+        max_usd=Decimal(1))
+
+    assert [d.id for d in done] == [0]  # drugi dokument nema izlaz za `b`
+    assert result.status == "partial"
+    assert result.cost["b"] == Decimal("0.02")  # plaćen pokušaj pre prekida nije izgubljen
+    assert wallet.total == sum(result.cost.values())
+
+
+def test_test_cap_stops_between_documents() -> None:
+    wallet, docs = Wallet(), _docs(lab=10, news=0)
+    done, result = run_candidates(
+        docs, {"a": wallet.ok("a"), "b": wallet.ok("b")}, wallet.spent,
+        max_usd=Decimal("0.04"))
+    assert len(done) == 2 and wallet.total == Decimal("0.04") and result.status == "partial"
+
+
+def test_already_exhausted_budget_gives_no_documents() -> None:
+    wallet = Wallet()
+    done, result = run_candidates(
+        _docs(lab=2, news=0), {"a": wallet.fail("a", BudgetExceeded("x")), "b": wallet.ok("b")},
+        wallet.spent, max_usd=Decimal(1))
+    assert done == [] and result.status == "partial"  # main() tada ne piše fajlove
