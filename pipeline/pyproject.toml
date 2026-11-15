@@ -31,7 +31,7 @@ select = ["E", "F", "I", "UP", "B", "S608"]
 
 [tool.mypy]
 strict = true
-files = ["src", "tests", "../eval/blind_test.py"]
+files = ["src", "tests", "../eval/blind_test.py", "../eval/run_eval.py"]
 mypy_path = "../eval"
 
 [[tool.mypy.overrides]]
