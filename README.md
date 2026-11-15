@@ -5,7 +5,7 @@ prikuplja podatke iz izvora, i (od faze F5) izvozi statički sajt. Specifikacija
 [SPEC.md](SPEC.md), arhitektonske odluke u [docs/adr/](docs/adr/).
 
 **Stanje:** F1 (ingest, deduplikacija) radi u produkciji i čeka kapiju od 7 dana; F2 (tracker
-modela) je implementiran. LLM obrada, vesti i sajt dolaze u fazama F3–F5.
+modela) je prošao kapiju; F3 je u toku (LLM klijent). LLM obrada, vesti i sajt dolaze u fazama F3–F5.
 
 ## Preduslovi
 
@@ -72,6 +72,8 @@ pipeline/
     identity.py           identitet modela: postojeći / sličan / novi
     tracker.py            upis modela, aliasa i istorije cena
     review.py             CLI za review_queue
+    budget.py             mesečni budžet LLM-a (5 USD), trošak se upisuje u `runs`
+    llm/                  klijent (OpenRouter, keš, retry), šeme izlaza, promptovi
     sources/              klijenti izvora (RSS, Hacker News, OpenRouter, Hugging Face)
   tests/fixtures/         stvarni odgovori izvora
 eval/                     šabloni i skripte za evaluaciju (oznake unosi vlasnik)

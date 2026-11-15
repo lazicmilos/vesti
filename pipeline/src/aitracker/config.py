@@ -47,6 +47,17 @@ def database_url() -> str:
     return url
 
 
+def llm_settings() -> tuple[str, str]:
+    """Vraća (model, API ključ). Jedini podržani provajder je OpenRouter (SPEC 11.1)."""
+    provider = os.environ.get("LLM_PROVIDER", "openrouter")
+    if provider != "openrouter":
+        raise ConfigError(f"LLM_PROVIDER={provider} nije podržan; podržan je samo openrouter")
+    model, key = os.environ.get("LLM_MODEL"), os.environ.get("OPENROUTER_API_KEY")
+    if not model or not key:
+        raise ConfigError("LLM_MODEL i OPENROUTER_API_KEY moraju biti postavljeni")
+    return model, key
+
+
 class JsonFormatter(logging.Formatter):
     """Jedan JSON objekat po liniji; dodatna polja idu kroz `extra={"data": {...}}`."""
 
