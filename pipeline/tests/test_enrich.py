@@ -11,7 +11,7 @@ from aitracker import enrich
 from aitracker.budget import Budget
 from aitracker.config import SourcesFile
 from aitracker.db import Conn
-from aitracker.enrich import LEAD_CHARS, enrich_models, find_pairs, mentions
+from aitracker.enrich import enrich_models, find_pairs, mentions
 from aitracker.llm.client import MAX_TOKENS, LLMClient
 from aitracker.run import Ctx, run
 from aitracker.sources.base import ModelItem
@@ -31,6 +31,8 @@ def test_mentions_trazi_tacan_alias() -> None:
     assert mentions(text, "gpt-5")
     assert mentions(text, "gemini-omni-1.2-flash")
     assert not mentions("chatgpt-5 i gpt-5-mini i gpt-5.1", "gpt-5")
+    assert not mentions("introducing mistral large 4 instruct", "mistral-large-4")
+    assert not mentions("mistral large\n4", "mistral-large-4")  # naslovi se ne spajaju
 
 
 @pytest.mark.parametrize("text", [
@@ -38,13 +40,17 @@ def test_mentions_trazi_tacan_alias() -> None:
     "mistral large 4 is now open weight",
     "the weights of mistral large 4\nare open",
     "introducing mistral_large_4.",
+    "mistral\u00a0large\u20114 je tu",
 ])
 def test_mentions_pogadja_obican_tekst(text: str) -> None:
     alias = "gpt-5" if text.startswith("gpt") else "mistral-large-4"
     assert mentions(text, alias)
 
 
-def _setup(conn: Conn, content: str = "Mistral Large 4 (Le Chonk) is now open weight") -> int:
+PAGE = "Mistral Large 4 (Le Chonk) is now open weight | Mistral\nThe weights are now open."
+
+
+def _setup(conn: Conn, content: str = PAGE) -> int:
     """Model iz OpenRouter-a sa context_window i cenama, i najava koja ga pominje."""
     upsert_models(conn, "openrouter", _source(conn, "openrouter", "tracker"), [ModelItem(
         raw_name="mistralai/mistral-large-4", name="Mistral Large 4", org=None,
@@ -128,7 +134,7 @@ def test_strukturirani_izvor_prepisuje_llm_vrednost(conn: Conn) -> None:
 
 @pytest.mark.db
 def test_model_pomenut_samo_na_kraju_stranice_se_ne_dopunjuje(conn: Conn) -> None:
-    _setup(conn, content="Gemini Omni 1.2 Flash\n" + "x" * LEAD_CHARS + "\nMistral Large 4")
+    _setup(conn, content="Gemini Omni 1.2 Flash | Google\n" + "x" * 300 + "\nMistral Large 4")
     assert find_pairs(conn) == []
 
 
@@ -206,9 +212,18 @@ def test_najava_drugog_modela_ne_daje_par(conn: Conn, complete: bool) -> None:
 
 
 @pytest.mark.db
-def test_dva_modela_u_uvodu_bez_naslova_su_dvosmislena(conn: Conn) -> None:
-    _setup(conn, content="Mistral Large 4 and Mistral Medium 4 are both open weight.")
-    _another_model(conn, "mistralai/mistral-medium-4", "Mistral Medium 4", complete=True)
+@pytest.mark.parametrize(("title", "content"), [
+    ("Introducing Mistral Medium 4",
+     "Introducing Mistral Medium 4 | Mistral\nFollowing Mistral Large 4, we go further."),
+    ("Introducing the Decisions API",
+     "Decisions API | Mistral\nThe API is powered by Mistral Large 4."),
+    ("Introducing Mistral Large 4 Instruct", "Mistral Large 4 Instruct | Mistral\nText."),
+    ("Le Chonk: Built for Coders", "Following Mistral Large 4, a single RSS line."),
+])
+def test_model_van_naslova_ne_dobija_najavu(conn: Conn, title: str, content: str) -> None:
+    # Jedini model u trackeru je Large 4; najava je o modelu koji tracker još ne zna.
+    _setup(conn, content=content)
+    conn.execute("UPDATE documents SET title = %s", (title,))
     assert find_pairs(conn) == []
 
 
@@ -226,12 +241,15 @@ def test_odseceni_izlaz_ide_u_review_queue_i_ne_placa_se_ponovo(conn: Conn) -> N
 @pytest.mark.db
 @pytest.mark.parametrize("bad_field", [
     {"context_window": 3_000_000_000}, {"price_out": -1}, {"params_b": 0},
+    {"license": "MIT\u0000"},  # schema ga prima, a JSONB i TEXT ne: DataError
+    {"price_in": "INF"},
 ])
 def test_vrednost_van_opsega_se_ne_upisuje_ni_ne_kesira(
     conn: Conn, bad_field: dict[str, Any]
 ) -> None:
-    bad = FIELDS | bad_field
-    llm, _ = _llm(conn, _setup(conn), [_reply(json.dumps(bad)), _reply(json.dumps(bad))])
+    # 1e999 je u JSON-u beskonačno; json.dumps bi ga upisao kao nestandardno `Infinity`.
+    bad = json.dumps(FIELDS | bad_field).replace('"INF"', "1e999")
+    llm, _ = _llm(conn, _setup(conn), [_reply(bad), _reply(bad)])
 
     assert enrich_models(conn, llm) == []  # ranije: NumericValueOutOfRange i pad svakog dana
 

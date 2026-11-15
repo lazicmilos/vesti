@@ -72,7 +72,7 @@ def select(docs: list[Doc], rng: random.Random, size: int = SAMPLE_SIZE) -> list
     """Do LAB_SHARE dokumenata laboratorija, ostatak iz vesti; manjak jedne grupe puni druga."""
     lab = [d for d in docs if d.source in LAB_SOURCES]
     news = [d for d in docs if d.source not in LAB_SOURCES]
-    picked = rng.sample(lab, min(LAB_SHARE, len(lab)))
+    picked = rng.sample(lab, min(size * LAB_SHARE // SAMPLE_SIZE, len(lab)))
     picked += rng.sample(news, min(size - len(picked), len(news)))
     rest = [d for d in lab if d not in picked]
     picked += rng.sample(rest, min(size - len(picked), len(rest)))

@@ -12,10 +12,10 @@ class ModelFields(BaseModel):
     org: str | None
     released_at: date | None
     # Granice odbijaju vrednost koju baza ne prima ili koja je besmislena, pre keša i upisa.
-    params_b: float | None = Field(gt=0)
+    params_b: float | None = Field(gt=0, allow_inf_nan=False)
     context_window: int | None = Field(gt=0, le=INT_MAX)
-    price_in: float | None = Field(ge=0)  # USD po 1M tokena
-    price_out: float | None = Field(ge=0)
+    price_in: float | None = Field(ge=0, allow_inf_nan=False)  # USD po 1M tokena
+    price_out: float | None = Field(ge=0, allow_inf_nan=False)
     license: str | None
     open_weights: bool | None
     summary_sr: str = Field(min_length=40, max_length=400)

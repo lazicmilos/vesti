@@ -40,6 +40,8 @@ def test_select_favors_labs_is_reproducible_and_fills_shortage() -> None:
     few_news = select(_docs(lab=40, news=5), random.Random(1))
     assert len(few_news) == 30 and sum(d.source == "the-verge" for d in few_news) == 5
     assert len(select(_docs(lab=3, news=4), random.Random(1))) == 7
+    small = select(docs, random.Random(1), size=3)  # --docs 3 (probno pokretanje)
+    assert len(small) == 3 and sum(d.source == "mistral-blog" for d in small) == 1
 
 
 def test_anonymize_hides_models_and_key_restores_them() -> None:
