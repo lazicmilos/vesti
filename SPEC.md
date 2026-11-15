@@ -15,7 +15,7 @@ Status:           Odobreno za implementaciju
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 | 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
 | 1.3 | 15.11.2026. | Miloš Lazić | 11.1: trošak iz `usage.cost` OpenRouter odgovora umesto `llm_prices.yaml`; timeout i pravila ponavljanja LLM poziva |
-| 1.4 | 15.11.2026. | Miloš Lazić | 9: pun tekst najave sa stranice za RSS stavke laboratorija |
+| 1.4 | 15.11.2026. | Miloš Lazić | 9: pun tekst najave sa stranice za RSS stavke laboratorija; 10: pravila LLM dopune; 11.2: granice vrednosti u `ModelFields` |
 
 ---
 
@@ -391,7 +391,7 @@ Hash sadržaja: sha256 nad tekstom posle uklanjanja HTML-a, spajanja razmaka i l
 3. **Tok trackera:**
     1. Upis i ažuriranje modela iz strukturiranih izvora (bez LLM-a, osim za `summary_sr`).
     2. Identitet modela (10.1).
-    3. LLM dopuna `NULL` polja iz zvaničnih najava laboratorija (FR-004).
+    3. LLM dopuna `NULL` polja iz zvaničnih najava laboratorija (FR-004). Najava se vezuje za model po tačnom normalizovanom aliasu (≥ 4 znaka) samo kad je model imenovan u naslovu: RSS naslovu ili `<title>` stranice (prvi red punog teksta). Uvod se ne koristi, jer najava novog modela pominje prethodni, a novi model možda još nije u trackeru. Pomen sa nastavkom imena („Large 4 Instruct“, „Flash“, „Mini“) nije pomen kraćeg modela. Popunjavaju se samo `NULL` polja, a `field_sources` dobija `llm:<url>`; vrednost strukturiranog izvora kasnije prepisuje LLM vrednost. Neuspela ekstrakcija (neispravan, odsečen ili izlaz van opsega, vrednost koju baza ne prima) ide u `review_queue` (`extraction_failed`) i par se ne ponavlja dok stavka nije rešena. Najviše 50 plaćenih poziva po pokretanju; bez `LLM_MODEL` i ključa korak se preskače uz obaveštenje u `runs.errors`.
 4. **Tok vesti:**
     1. Embedding novih dokumenata.
     2. Klasterisanje (10.2).
@@ -460,10 +460,10 @@ Feed za dan D: događaji sa `score ≥ min_score` koji još nisu bili u feedu, s
 class ModelFields(BaseModel):
     org: str | None
     released_at: date | None
-    params_b: float | None
-    context_window: int | None
-    price_in: float | None          # USD po 1M tokena
-    price_out: float | None
+    params_b: float | None = Field(gt=0)
+    context_window: int | None = Field(gt=0, le=2**31 - 1)   # kolona INT
+    price_in: float | None = Field(ge=0)   # USD po 1M tokena
+    price_out: float | None = Field(ge=0)
     license: str | None
     open_weights: bool | None
     summary_sr: str = Field(min_length=40, max_length=400)

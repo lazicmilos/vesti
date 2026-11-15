@@ -52,6 +52,7 @@ def test_run_zamenjuje_rss_tekst_punim_a_hash_ostaje(conn: Conn) -> None:
         return httpx.Response(403)
 
     ctx = Ctx(now=datetime(2026, 11, 15, tzinfo=UTC), config=config, client=offline_client(handler))
+    ctx.llm = None
     assert run(conn, ctx) == "ok"  # neuspelo preuzimanje stranice ne menja status
 
     item = next(i for i in parse_feed(fixture_bytes("mistral.xml")) if i.url == LE_CHONK)
@@ -113,3 +114,19 @@ def test_purge_content_brise_tekst_starijih_od_7_dana(conn: Conn) -> None:
     assert purge_content(conn, now) == 1
     rows = conn.execute("SELECT url_canonical, content FROM documents ORDER BY id").fetchall()
     assert rows == [("u0", None), ("u1", "tekst"), ("u2", "tekst")]
+
+
+@pytest.mark.db
+def test_run_poziva_brisanje_teksta(conn: Conn) -> None:
+    source = conn.execute(
+        "INSERT INTO sources (name, kind, role, url) VALUES ('s', 'rss', 'news', 'u') RETURNING id"
+    ).fetchone()[0]  # type: ignore[index]
+    conn.execute(
+        "INSERT INTO documents (source_id, url_canonical, title, content_hash, content, "
+        "fetched_at) "
+        "VALUES (%s, 'u', 't', %s, 'tekst', '2026-11-01')", (source, "a" * 64),
+    )
+    ctx = Ctx(now=datetime(2026, 11, 15, tzinfo=UTC), config=SourcesFile(sources=[]),
+              client=offline_client(lambda r: httpx.Response(404)))
+    run(conn, ctx)
+    assert conn.execute("SELECT content FROM documents").fetchone() == (None,)

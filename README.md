@@ -33,6 +33,10 @@ uv run --env-file ../.env python -m aitracker.run
 Pokretanje primenjuje migracije, preuzima vesti i modele iz izvora u `config/sources.yaml` i
 upisuje red u tabelu `runs`. Ponovno pokretanje ne pravi duplikate.
 
+Ako su postavljeni `LLM_MODEL` i `OPENROUTER_API_KEY`, pokretanje dopunjuje `NULL` polja modela
+iz najava laboratorija (mesečni budžet 5 USD). Bez njih se korak preskače. U GitHub Actions ključ
+je secret `OPENROUTER_API_KEY`, a model promenljiva repozitorijuma `LLM_MODEL`.
+
 ## Pregled sličnih imena modela
 
 Model čije ime liči na postojeći model iste organizacije ne ulazi u tracker sam, nego u
@@ -66,6 +70,7 @@ pipeline/
   migrations/             numerisani SQL fajlovi
   src/aitracker/
     run.py                orkestrator, upis u `runs`
+    enrich.py             LLM dopuna NULL polja modela iz najava laboratorija
     db.py                 konekcija i runner migracija
     normalize.py          kanonski URL, hash sadržaja
     dedup.py              upis dokumenata bez duplikata

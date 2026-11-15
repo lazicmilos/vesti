@@ -5,14 +5,17 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+INT_MAX = 2**31 - 1  # kolona INT u Postgres-u
+
 
 class ModelFields(BaseModel):
     org: str | None
     released_at: date | None
-    params_b: float | None
-    context_window: int | None
-    price_in: float | None  # USD po 1M tokena
-    price_out: float | None
+    # Granice odbijaju vrednost koju baza ne prima ili koja je besmislena, pre keša i upisa.
+    params_b: float | None = Field(gt=0, allow_inf_nan=False)
+    context_window: int | None = Field(gt=0, le=INT_MAX)
+    price_in: float | None = Field(ge=0, allow_inf_nan=False)  # USD po 1M tokena
+    price_out: float | None = Field(ge=0, allow_inf_nan=False)
     license: str | None
     open_weights: bool | None
     summary_sr: str = Field(min_length=40, max_length=400)

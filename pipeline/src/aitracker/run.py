@@ -1,15 +1,28 @@
 """CLI orkestrator dnevnog pipeline-a: `python -m aitracker.run`."""
 
+import functools
 import logging
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 
 from psycopg.types.json import Jsonb
 
-from aitracker.config import SourceConfig, SourcesFile, database_url, load_sources, setup_logging
+from aitracker.budget import Budget
+from aitracker.config import (
+    ConfigError,
+    SourceConfig,
+    SourcesFile,
+    database_url,
+    llm_settings,
+    load_sources,
+    setup_logging,
+)
 from aitracker.db import Conn, connect, migrate
 from aitracker.dedup import insert_new, update_hn_points
+from aitracker.enrich import enrich_models
+from aitracker.llm.client import LLMClient
 from aitracker.sources.base import (
     EmptySource,
     ModelSource,
@@ -28,7 +41,7 @@ log = logging.getLogger("aitracker.run")
 EMPTY_DAYS_LIMIT = 3  # NFR-R-003
 CONTENT_DAYS = 7  # NFR-L-001
 # Vrste grešaka koje označavaju pokretanje kao `partial`; ostale su obaveštenja.
-PARTIAL_KINDS = {"error"}
+PARTIAL_KINDS = {"error", "budget"}
 
 
 @dataclass
@@ -36,6 +49,8 @@ class Ctx:
     now: datetime
     config: SourcesFile
     client: PoliteClient
+    # Pravi LLM klijent za dati budžet; None kad LLM_MODEL ili ključ nisu postavljeni.
+    llm: Callable[[Conn, Budget], LLMClient] | None = None
 
 
 @dataclass
@@ -161,7 +176,12 @@ def run(conn: Conn, ctx: Ctx) -> str:
     run_id: int = row.fetchone()[0]  # type: ignore[index]
     try:
         result = ingest(conn, ctx)
-        purge_content(conn, ctx.now)
+        if ctx.llm is None:
+            result.errors.append({"source": "llm", "kind": "disabled",
+                                  "message": "LLM nije podešen; dopuna preskočena"})
+        else:
+            result.errors += enrich_models(conn, ctx.llm(conn, Budget(conn, run_id, ctx.now)))
+        purge_content(conn, ctx.now)  # posle dopune, kojoj treba tekst (SPEC 10 korak 6)
     except Exception as exc:
         fatal = [{"kind": "fatal", "message": type(exc).__name__}]
         _close_run(conn, run_id, "failed", StepResult(), fatal)
@@ -193,8 +213,15 @@ def _close_run(
 
 def main() -> int:
     setup_logging()
+    llm: Callable[[Conn, Budget], LLMClient] | None = None
+    try:
+        model, api_key = llm_settings()
+        llm = functools.partial(LLMClient, model=model, api_key=api_key)
+    except ConfigError as exc:
+        log.warning("LLM nije podešen", extra={"data": {"message": str(exc)}})
     with connect(database_url()) as conn:
-        run(conn, Ctx(now=datetime.now(UTC), config=load_sources(), client=PoliteClient()))
+        ctx = Ctx(now=datetime.now(UTC), config=load_sources(), client=PoliteClient(), llm=llm)
+        run(conn, ctx)
     # `partial` je ispravan ishod (izlaz 0); `failed` izlazi kroz izuzetak.
     return 0
 
