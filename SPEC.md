@@ -3,7 +3,7 @@
 ```
 Naziv dokumenta:  Specifikacija za implementaciju — AI Tracker (radni naziv)
 Oznaka:           SPEC-AIT-001
-Verzija:          1.3
+Verzija:          1.4
 Datum:            10.11.2026.
 Autor:            Miloš Lazić
 Status:           Odobreno za implementaciju
@@ -15,6 +15,7 @@ Status:           Odobreno za implementaciju
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 | 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
 | 1.3 | 15.11.2026. | Miloš Lazić | 11.1: trošak iz `usage.cost` OpenRouter odgovora umesto `llm_prices.yaml`; timeout i pravila ponavljanja LLM poziva |
+| 1.4 | 15.11.2026. | Miloš Lazić | 9: pun tekst najave sa stranice za RSS stavke laboratorija |
 
 ---
 
@@ -371,7 +372,7 @@ class Source(Protocol):
 | --- | --- | --- | --- |
 | OpenRouter | tracker | REST lista modela (pretpostavka: `GET https://openrouter.ai/api/v1/models`) | Glavni izvor cena i context window-a. Proveri jedinicu cene u odgovoru i konvertuj u USD po 1M tokena. |
 | Hugging Face Hub | tracker | REST API za modele | Samo open-weight modeli iznad praga popularnosti iz `sources.yaml`; inače šum. Proveri tačne parametre sortiranja. |
-| Blogovi laboratorija: OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral | both | RSS gde postoji | Težina 1.5. Ako lab nema RSS, izvor ostaje isključen i to se navodi u PR-u. Bez HTML scrapinga u v1. |
+| Blogovi laboratorija: OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral | both | RSS gde postoji | Težina 1.5. Ako lab nema RSS, izvor ostaje isključen i to se navodi u PR-u. Stavke se otkrivaju samo preko RSS-a; za nove stavke izvora sa `fulltext: true` preuzima se pun tekst stranice najave (RSS daje ~150 znakova), uz robots.txt i razmak iz NFR-L-002. Neuspelo preuzimanje zadržava RSS tekst. `content_hash` se računa iz RSS teksta. |
 | The Verge, Ars Technica, TechCrunch | news | RSS | Težina 1.0. |
 | Hacker News | signal | Algolia HN API | Popunjava `documents.hn_points` za dokumente čiji URL se poklapa. Ne pravi samostalne događaje. |
 

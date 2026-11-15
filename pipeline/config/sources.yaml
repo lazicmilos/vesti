@@ -16,9 +16,13 @@ sources:
     role: tracker
     url: "https://huggingface.co/api/models"
     min_likes: 1000       # prag popularnosti; ispod njega je šum
+  # Pun tekst stranice (fulltext): RSS daje ~150 znakova najave. OpenAI stranice vraćaju 403
+  # našem User-Agent-u (provereno 15. 11. 2026), pa za njih ostaje RSS tekst.
   - {name: openai-blog,   kind: rss, role: both, weight: 1.5, url: "https://openai.com/news/rss.xml"}
-  - {name: deepmind-blog, kind: rss, role: both, weight: 1.5, url: "https://deepmind.google/blog/rss.xml"}
-  - {name: mistral-blog,  kind: rss, role: both, weight: 1.5, url: "https://mistral.ai/rss.xml"}
+  - {name: deepmind-blog, kind: rss, role: both, weight: 1.5, fulltext: true,
+     url: "https://deepmind.google/blog/rss.xml"}
+  - {name: mistral-blog,  kind: rss, role: both, weight: 1.5, fulltext: true,
+     url: "https://mistral.ai/rss.xml"}
   # Nemaju RSS (404 na proveri); bez HTML scrapinga u v1, zato isključeni.
   - {name: anthropic-blog, kind: rss, role: both, weight: 1.5, enabled: false, url: "https://www.anthropic.com/news"}
   - {name: meta-ai-blog,   kind: rss, role: both, weight: 1.5, enabled: false, url: "https://ai.meta.com/blog/"}
