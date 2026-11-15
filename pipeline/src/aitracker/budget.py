@@ -39,6 +39,11 @@ class Budget:
         if spent >= LIMIT_USD - RESERVE_USD:
             raise BudgetExceeded(f"potrošeno {spent} od {LIMIT_USD} USD ovog meseca")
 
+    def calls(self) -> int:
+        """Broj plaćenih LLM poziva u tekućem pokretanju, uključujući neuspele pokušaje."""
+        row = self.conn.execute("SELECT llm_calls FROM runs WHERE id = %s", (self.run_id,))
+        return int(row.fetchone()[0])  # type: ignore[index]
+
     def charge(self, cost_usd: Decimal) -> None:
         self.conn.execute(
             "UPDATE runs SET cost_usd = cost_usd + %s, llm_calls = llm_calls + 1 WHERE id = %s",
