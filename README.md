@@ -74,7 +74,7 @@ pipeline/
     review.py             CLI za review_queue
     budget.py             mesečni budžet LLM-a (5 USD), trošak se upisuje u `runs`
     llm/                  klijent (OpenRouter, keš, retry), šeme izlaza, promptovi (verzija u imenu)
-    sources/              klijenti izvora (RSS, Hacker News, OpenRouter, Hugging Face)
+    sources/              klijenti izvora (RSS, Hacker News, OpenRouter, Hugging Face) i pun tekst najava
   tests/fixtures/         stvarni odgovori izvora
 eval/                     šabloni i skripte za evaluaciju (oznake unosi vlasnik)
 .github/workflows/        ci.yml (ruff, mypy, pytest), daily.yml (cron 05:00 UTC)

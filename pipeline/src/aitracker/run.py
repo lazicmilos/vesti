@@ -17,6 +17,7 @@ from aitracker.sources.base import (
     Source,
     SourceError,
 )
+from aitracker.sources.fulltext import fill_fulltext
 from aitracker.sources.hackernews import HackerNewsSource
 from aitracker.sources.huggingface import HuggingFaceSource
 from aitracker.sources.openrouter import OpenRouterSource
@@ -25,6 +26,8 @@ from aitracker.tracker import upsert_models
 
 log = logging.getLogger("aitracker.run")
 EMPTY_DAYS_LIMIT = 3  # NFR-R-003
+# Vrste grešaka koje označavaju pokretanje kao `partial`; ostale su obaveštenja.
+PARTIAL_KINDS = {"error"}
 
 
 @dataclass
@@ -101,6 +104,13 @@ def ingest(conn: Conn, ctx: Ctx) -> StepResult:
                     else:
                         count = insert_new(conn, ids[cfg.name], items)
                         result.new_docs += count
+                        # now() je vreme početka transakcije, isto kao fetched_at novih redova.
+                        inserted_at = conn.execute("SELECT now()").fetchone()[0]  # type: ignore[index]
+                # Posle commita: mrežni pozivi ne drže transakciju otvorenom.
+                if cfg.fulltext and cfg.role != "signal" and count:
+                    result.errors += fill_fulltext(
+                        conn, ctx.client, cfg.name, ids[cfg.name], inserted_at
+                    )
                 fetched, extra = len(items), {}
         except EmptySource as exc:
             result.errors.append({"source": cfg.name, "kind": "empty", "message": str(exc)})
@@ -143,9 +153,9 @@ def run(conn: Conn, ctx: Ctx) -> str:
         raise
     partial = False
     for error in result.errors:
-        if error["kind"] == "error":
+        if error["kind"] in PARTIAL_KINDS:
             partial = True
-        elif empty_streak(conn, run_id, error["source"], ctx.now):
+        elif error["kind"] == "empty" and empty_streak(conn, run_id, error["source"], ctx.now):
             partial = True
             error["message"] += f" ({EMPTY_DAYS_LIMIT} dana zaredom)"
     status = "partial" if partial else "ok"
