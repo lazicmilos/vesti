@@ -87,3 +87,27 @@ Napomene za tumačenje rezultata:
   greške (`LLMError`) ili odsečen izlaz u koloni `error`.
 
 Skupovi `cluster_pairs.csv` i `summaries_review.csv` i skripta `run_eval.py` dolaze u F3 i F4.
+
+### Metrike (`run_eval.py`)
+
+```bash
+cd pipeline && uv run --env-file ../.env python ../eval/run_eval.py
+```
+
+Skripta poredi trenutne vrednosti iz baze sa `gold_*` kolonama i ispisuje Markdown tabelu za
+README. Red se računa tek kad upišeš `official_url`, pa označavanje može da ide postepeno.
+
+- **Tačno, sva polja:** svako ne-null polje trackera, bez obzira na izvor (API ili LLM).
+- **Tačno, LLM polja:** samo polja čiji `field_sources` počinje sa `llm:`. Ovo je metrika
+  kapije F3 (≥ 95%).
+- **Izmišljeno (LLM):** LLM je upisao vrednost, a zvanični izvor je ne navodi (prazna `gold_*`
+  ćelija u označenom redu). Cilj kapije F3 je 0.
+- NULL u trackeru se ne računa kao greška (FR-003).
+
+Nazivi se porede bez razlike u velikim slovima i interpunkciji (`mistralai` = `Mistral AI`,
+`Apache-2.0` = `Apache 2.0`); cene i parametri se porede kao brojevi. Ispod tabele skripta
+nabraja svaku razliku, da proveriš da li je greška trackera ili oznake.
+
+**Uz svaki procenat stoji broj vrednosti.** Uzorak od 50 nasumičnih modela sadrži malo modela
+čiju najavu pipeline čita sa bloga laboratorije, pa LLM polja u njemu može biti premalo za
+merenje kapije F3. Tada tabela to pokazuje kroz mali imenilac.
