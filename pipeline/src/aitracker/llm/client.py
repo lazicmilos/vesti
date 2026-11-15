@@ -37,6 +37,10 @@ class ValidationFailed(LLMError):
     """Izlaz modela ni posle ponovljenog pokušaja ne prolazi šemu."""
 
 
+class OutputTruncated(ValidationFailed):
+    """Izlaz je odsečen na MAX_TOKENS; plaćen je, a ponovni pokušaj bi pao isto."""
+
+
 @dataclass(frozen=True)
 class Usage:
     """Šta je ovaj poziv potrošio; pogodak u kešu ne troši ništa."""
@@ -81,7 +85,7 @@ class LLMClient:
         prompts: Path = PROMPTS,
         glossary: Path = GLOSSARY,
     ) -> None:
-        self._conn, self._budget, self.model = conn, budget, model
+        self._conn, self.budget, self.model = conn, budget, model
         self._http = httpx.Client(
             transport=transport, timeout=TIMEOUT_S, headers={"Authorization": f"Bearer {api_key}"}
         )
@@ -104,12 +108,12 @@ class LLMClient:
         messages = [{"role": "user", "content": prompt}]
         total = Usage()
         for _ in range(2):
-            self._budget.check()
+            self.budget.check()
             content, truncated, usage = self._call(messages)
-            self._budget.charge(usage.cost_usd)
+            self.budget.charge(usage.cost_usd)
             if truncated:
                 # Retry sa istim limitom bi pao isto i bio plaćen drugi put.
-                raise LLMError(f"{prompt_name}: izlaz odsečen na {MAX_TOKENS} tokena")
+                raise OutputTruncated(f"{prompt_name}: izlaz odsečen na {MAX_TOKENS} tokena")
             total = Usage(
                 total.input_tokens + usage.input_tokens,
                 total.output_tokens + usage.output_tokens,

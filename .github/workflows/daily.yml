@@ -18,6 +18,9 @@ jobs:
         working-directory: pipeline
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Bez ova dva LLM dopuna se preskače (obaveštenje u runs.errors), pipeline radi dalje.
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      LLM_MODEL: ${{ vars.LLM_MODEL }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5

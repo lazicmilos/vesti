@@ -52,6 +52,7 @@ def test_run_zamenjuje_rss_tekst_punim_a_hash_ostaje(conn: Conn) -> None:
         return httpx.Response(403)
 
     ctx = Ctx(now=datetime(2026, 11, 15, tzinfo=UTC), config=config, client=offline_client(handler))
+    ctx.llm = None
     assert run(conn, ctx) == "ok"  # neuspelo preuzimanje stranice ne menja status
 
     item = next(i for i in parse_feed(fixture_bytes("mistral.xml")) if i.url == LE_CHONK)
