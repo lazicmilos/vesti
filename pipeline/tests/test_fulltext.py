@@ -8,7 +8,7 @@ from conftest import fixture_bytes, offline_client
 from aitracker.config import SourceConfig, SourcesFile
 from aitracker.db import Conn
 from aitracker.normalize import canonical_url, content_hash
-from aitracker.run import Ctx, run
+from aitracker.run import Ctx, purge_content, run
 from aitracker.sources.fulltext import MAX_CHARS, extract_text
 from aitracker.sources.rss import parse_feed
 
@@ -66,3 +66,51 @@ def test_run_zamenjuje_rss_tekst_punim_a_hash_ostaje(conn: Conn) -> None:
     errors = conn.execute("SELECT errors FROM runs").fetchone()[0]  # type: ignore[index]
     kinds = {e["kind"] for e in errors if e["source"] == "mistral-blog"}
     assert kinds == {"fulltext"}
+
+
+@pytest.mark.db
+def test_stranica_koja_nije_html_ne_obara_run(conn: Conn) -> None:
+    config = SourcesFile(lookback_hours=100_000, sources=[SourceConfig(
+        name="mistral-blog", kind="rss", role="both", fulltext=True,
+        url="https://mistral.ai/rss.xml")])
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/rss.xml":
+            return httpx.Response(200, content=fixture_bytes("mistral.xml"))
+        if request.url.path.rstrip("/") == "/news/mistral-large-4-oss":
+            return httpx.Response(200, content=b"<p>a\x00b</p>",
+                                  headers={"content-type": "text/html"})
+        return httpx.Response(200, content=b"%PDF\x00\x01",
+                              headers={"content-type": "application/pdf"})
+
+    ctx = Ctx(now=datetime(2026, 11, 15, tzinfo=UTC), config=config, client=offline_client(handler))
+    assert run(conn, ctx) == "ok"
+    content = conn.execute(
+        "SELECT content FROM documents WHERE url_canonical = %s", (canonical_url(LE_CHONK),)
+    ).fetchone()
+    assert content == ("ab",)
+    errors = conn.execute("SELECT errors FROM runs").fetchone()[0]  # type: ignore[index]
+    assert any("nije HTML" in e["message"] for e in errors)
+
+
+@pytest.mark.db
+def test_purge_content_brise_tekst_starijih_od_7_dana(conn: Conn) -> None:
+    source = conn.execute(
+        "INSERT INTO sources (name, kind, role, url) VALUES ('s', 'rss', 'news', 'u') RETURNING id"
+    ).fetchone()[0]  # type: ignore[index]
+    now = datetime(2026, 11, 15, tzinfo=UTC)
+    for i, (fetched, processed) in enumerate([
+        ("2026-11-07", None),           # preuzet pre 8 dana: briše se
+        ("2026-11-09", None),           # pre 6 dana: ostaje
+        ("2026-11-01", "2026-11-10"),   # obrađen pre 5 dana: ostaje, rok ide od obrade
+    ]):
+        conn.execute(
+            "INSERT INTO documents (source_id, url_canonical, title, content_hash, content, "
+            "fetched_at, processed_at) VALUES (%s, %s, 't', %s, 'tekst', %s, %s)",
+            (source, f"u{i}", str(i) * 64, fetched, processed),
+        )
+    assert purge_content(conn, now) == 1
+    rows = conn.execute("SELECT url_canonical, content FROM documents ORDER BY id").fetchall()
+    assert rows == [("u0", None), ("u1", "tekst"), ("u2", "tekst")]

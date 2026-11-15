@@ -39,6 +39,7 @@ from aitracker.tracker import upsert_models
 
 log = logging.getLogger("aitracker.run")
 EMPTY_DAYS_LIMIT = 3  # NFR-R-003
+CONTENT_DAYS = 7  # NFR-L-001
 # Vrste grešaka koje označavaju pokretanje kao `partial`; ostale su obaveštenja.
 PARTIAL_KINDS = {"error", "budget"}
 
@@ -155,6 +156,19 @@ def empty_streak(conn: Conn, run_id: int, source: str, now: datetime) -> bool:
     return bool(row[0] == EMPTY_DAYS_LIMIT - 1)
 
 
+def purge_content(conn: Conn, now: datetime) -> int:
+    """Briše interni tekst dokumenata starijih od 7 dana od obrade (NFR-L-001, SPEC 10 korak 6).
+
+    Dok obrada vesti (F4) ne upisuje `processed_at`, rok se računa od preuzimanja.
+    """
+    cursor = conn.execute(
+        "UPDATE documents SET content = NULL WHERE content IS NOT NULL "
+        "AND coalesce(processed_at, fetched_at) < %s",
+        (now - timedelta(days=CONTENT_DAYS),),
+    )
+    return cursor.rowcount
+
+
 def run(conn: Conn, ctx: Ctx) -> str:
     """Izvršava pipeline, upisuje red u `runs` (NFR-O-001) i vraća status."""
     migrate(conn)
@@ -167,6 +181,7 @@ def run(conn: Conn, ctx: Ctx) -> str:
                                   "message": "LLM nije podešen; dopuna preskočena"})
         else:
             result.errors += enrich_models(conn, ctx.llm(conn, Budget(conn, run_id, ctx.now)))
+        purge_content(conn, ctx.now)  # posle dopune, kojoj treba tekst (SPEC 10 korak 6)
     except Exception as exc:
         fatal = [{"kind": "fatal", "message": type(exc).__name__}]
         _close_run(conn, run_id, "failed", StepResult(), fatal)
