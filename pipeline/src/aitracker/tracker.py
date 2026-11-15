@@ -60,6 +60,7 @@ def update_model(conn: Conn, model_id: int, source: str, item: ModelItem) -> boo
     """Popunjava NULL polja i osvežava ona koja je isti izvor ranije postavio (FR-006).
 
     Vrednost koju je postavio drugi izvor se ne dira: prvi strukturirani izvor ima prednost.
+    Vrednost iz LLM ekstrakcije uvek ustupa vrednosti strukturiranog izvora (FR-004).
     """
     columns = sql.SQL(", ").join(sql.Identifier(name) for name in FIELDS)
     row = conn.execute(
@@ -73,7 +74,8 @@ def update_model(conn: Conn, model_id: int, source: str, item: ModelItem) -> boo
         for name in FIELDS
         if getattr(item, name) is not None
         and getattr(item, name) != current[name]
-        and (current[name] is None or field_sources.get(name) == source)
+        and (current[name] is None or field_sources.get(name) == source
+             or field_sources.get(name, "").startswith("llm:"))
     }
     if not changes:
         return False

@@ -15,7 +15,7 @@ Status:           Odobreno za implementaciju
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 | 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
 | 1.3 | 15.11.2026. | Miloš Lazić | 11.1: trošak iz `usage.cost` OpenRouter odgovora umesto `llm_prices.yaml`; timeout i pravila ponavljanja LLM poziva |
-| 1.4 | 15.11.2026. | Miloš Lazić | 9: pun tekst najave sa stranice za RSS stavke laboratorija |
+| 1.4 | 15.11.2026. | Miloš Lazić | 9: pun tekst najave sa stranice za RSS stavke laboratorija; 10: pravila LLM dopune |
 
 ---
 
@@ -391,7 +391,7 @@ Hash sadržaja: sha256 nad tekstom posle uklanjanja HTML-a, spajanja razmaka i l
 3. **Tok trackera:**
     1. Upis i ažuriranje modela iz strukturiranih izvora (bez LLM-a, osim za `summary_sr`).
     2. Identitet modela (10.1).
-    3. LLM dopuna `NULL` polja iz zvaničnih najava laboratorija (FR-004).
+    3. LLM dopuna `NULL` polja iz zvaničnih najava laboratorija (FR-004). Najava se vezuje za model samo kad se tačan normalizovan alias (≥ 4 znaka) pojavi u naslovu ili prvih 300 znakova teksta. Popunjavaju se samo `NULL` polja, a `field_sources` dobija `llm:<url>`; vrednost strukturiranog izvora kasnije prepisuje LLM vrednost. Neuspela ekstrakcija ide u `review_queue` (`extraction_failed`) i par se ne ponavlja dok stavka nije rešena. Najviše 50 plaćenih poziva po pokretanju; bez `LLM_MODEL` i ključa korak se preskače uz obaveštenje u `runs.errors`.
 4. **Tok vesti:**
     1. Embedding novih dokumenata.
     2. Klasterisanje (10.2).

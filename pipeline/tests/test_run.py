@@ -5,8 +5,10 @@ import httpx
 import pytest
 from conftest import fixture_bytes, offline_client
 
+from aitracker.budget import Budget
 from aitracker.config import SourceConfig, SourcesFile, load_sources
 from aitracker.db import Conn
+from aitracker.llm.client import LLMClient
 from aitracker.run import Ctx, run
 
 NOW = datetime(2026, 11, 10, 12, 0, tzinfo=UTC)
@@ -37,7 +39,14 @@ def _ctx(overrides: dict[str, httpx.Response] | None = None) -> Ctx:
             return httpx.Response(404)
         return responses[request.url.host]
 
-    return Ctx(now=NOW, config=CONFIG, client=offline_client(handler))
+    return Ctx(now=NOW, config=CONFIG, client=offline_client(handler), llm=_no_calls_llm)
+
+
+def _no_calls_llm(conn: Conn, budget: Budget) -> LLMClient:
+    """LLM klijent koji pada na svaki poziv; ovi testovi nemaju modele za dopunu."""
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("neočekivan LLM poziv")
+    return LLMClient(conn, budget, "m", "k", transport=httpx.MockTransport(handler))
 
 
 def _last_run(conn: Conn) -> tuple[Any, ...]:
@@ -195,3 +204,12 @@ def test_run_neocekivan_izuzetak_oznacava_run_kao_failed(conn: Conn) -> None:
         run(conn, ctx)
 
     assert _last_run(conn)[0] == "failed"
+
+
+@pytest.mark.db
+def test_run_bez_llm_podesavanja_belezi_obavestenje_a_status_ostaje_ok(conn: Conn) -> None:
+    ctx = _ctx()
+    ctx.llm = None
+
+    assert run(conn, ctx) == "ok"
+    assert [(e["source"], e["kind"]) for e in _last_run(conn)[2]] == [("llm", "disabled")]
