@@ -55,10 +55,14 @@ def fill_fulltext(
     errors = []
     for doc_id, url in rows:
         try:
-            text = extract_text(client.get(url).text)
+            response = client.get(url)
+            if not response.headers.get("content-type", "").startswith("text/html"):
+                raise SourceError(f"{url} nije HTML stranica")
         except SourceError as exc:
             errors.append({"source": source, "kind": "fulltext", "message": str(exc)})
             continue
+        # Postgres TEXT ne prima NUL bajt; bez ovoga jedna loša stranica obara ceo run.
+        text = extract_text(response.text.replace("\x00", ""))
         if text:
             conn.execute("UPDATE documents SET content = %s WHERE id = %s", (text, doc_id))
     return errors
