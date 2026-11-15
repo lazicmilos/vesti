@@ -32,4 +32,42 @@ organizacija. Upiši broj kandidata ako je isti model, Enter ako nije, `p` da pr
 sačuvaš i izađeš (nastavak sa `--start N`). Skripta upisuje samo kolonu `duplicate_of` i samo
 ono što izabereš. Kandidati su pomoć, nisu odluka: ako sumnjaš, otvori oba linka.
 
+## Blind test LLM-a (kapija F3)
+
+Isti 30 dokumenata iz baze ide kroz 2–3 kandidata preko prompta `event_summary_v1`. Uzorak je
+ponovljiv (fiksni seed): do 15 najava laboratorija (`openai-blog`, `deepmind-blog`,
+`mistral-blog`), ostatak iz vesti. Ako jedne grupe nema dovoljno, dopunjuje je druga.
+
+```bash
+cd pipeline && uv run --env-file ../.env python ../eval/blind_test.py
+```
+
+Podrazumevani kandidati: `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna`,
+`deepseek/deepseek-v4.1-flash`. Drugi se zadaju sa `--models a,b,c`. Trošak ide u novi red
+tabele `runs`, pa ulazi u mesečni budžet. Prekoračen budžet prekida test, a u CSV ulaze samo
+dokumenti koje su obradili svi kandidati.
+
+Skripta piše dva fajla i odbija da pregazi postojeće:
+
+- `blind_test.csv`: po tri reda za svaki dokument, oznake `A`, `B`, `C`. Mapiranje oznaka na
+  modele je nasumično **za svaki dokument posebno**, pa isto slovo ne znači isti model.
+  `source_text` je tačno tekst koji je model dobio: tvrdnje se proveravaju prema njemu, ne
+  prema članku na linku. Neuspeo poziv ima prazan izlaz i ime greške u koloni `error`.
+- `blind_test_key.json`: mapiranje i, po modelu, broj uspešnih i neuspelih poziva i trošak.
+  **Ne otvaraj ga pre nego što oceniš sve redove.** Iste brojke skripta ispisuje na kraju, ali
+  one ne otkrivaju koje slovo pripada kom modelu.
+
+| Kolona | Ko popunjava | Značenje |
+| --- | --- | --- |
+| `unsupported_claim` | vlasnik | `da` ako sažetak ili naslov tvrdi nešto čega nema u `source_text`; inače `ne` |
+| `serbian_quality` | vlasnik | ocena srpskog 1–5 |
+| `notes` | vlasnik | slobodan tekst |
+
+Napomene za tumačenje rezultata:
+
+- `anthropic/claude-haiku-5.5` i `openai/gpt-6-luna` ne podržavaju `temperature` (prema
+  `supported_parameters` OpenRouter-a), pa se kod njih ponovljivost oslanja samo na keš.
+- Klijent šalje `reasoning.effort=none`. Kandidat koji to ne podržava pokazaće se kroz
+  greške (`LLMError`) ili odsečen izlaz u koloni `error`.
+
 Skupovi `cluster_pairs.csv` i `summaries_review.csv` i skripta `run_eval.py` dolaze u F3 i F4.
