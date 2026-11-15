@@ -14,7 +14,7 @@ Status:           Odobreno za implementaciju
 | 1.0 | 10.11.2026. | Miloš Lazić | Prva verzija za implementaciju |
 | 1.1 | 10.11.2026. | Miloš Lazić | Dodato pravilo 0.10: podela uloga modela (pisanje koda / pregled) |
 | 1.2 | 10.11.2026. | Miloš Lazić | Odeljak 17: datum dodavanja na OpenRouter prihvaćen kao približan datum izdanja |
-| 1.3 | 15.11.2026. | Miloš Lazić | 11.1: trošak iz `usage.cost` OpenRouter odgovora umesto `llm_prices.yaml` |
+| 1.3 | 15.11.2026. | Miloš Lazić | 11.1: trošak iz `usage.cost` OpenRouter odgovora umesto `llm_prices.yaml`; timeout i pravila ponavljanja LLM poziva |
 
 ---
 
@@ -451,6 +451,7 @@ Feed za dan D: događaji sa `score ≥ min_score` koji još nisu bili u feedu, s
 - Izlaz se parsira u Pydantic šemu. Neuspela validacija → jedan retry sa porukom o grešci; drugi neuspeh → `review_queue` (`extraction_failed`).
 - Trošak je `usage.cost` iz odgovora OpenRouter-a (stvarno naplaćen iznos). Cenovnik se ne vodi ručno: OpenRouter rutira na provajdere različitih cena, pa bi obračun po listi potcenio trošak (izmereno 2,7×). Odgovor bez `usage.cost` je greška.
 - `temperature = 0`.
+- Timeout LLM poziva je 60 s (ne 20 s kao za izvore). Ponavljaju se samo greške uspostavljanja veze, 429 i 5xx; greška posle slanja zahteva i odsečen izlaz (`finish_reason = length`) se ne ponavljaju, jer je poziv možda već naplaćen.
 
 ### 11.2 Šeme (`llm/schemas.py`)
 

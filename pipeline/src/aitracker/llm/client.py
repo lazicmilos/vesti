@@ -1,5 +1,6 @@
 """LLM klijent: keš, budžet, poziv OpenRouter-a i validacija JSON izlaza (SPEC 11.1)."""
 
+import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -16,10 +17,13 @@ from aitracker.llm import cache
 
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 PROMPTS = Path(__file__).parent / "prompts"
+log = logging.getLogger("aitracker.llm")
 # Bez max_tokens OpenRouter rezerviše ceo izlazni limit modela i odbija poziv (402) kad je
 # stanje na računu malo. Modeli za rezonovanje troše deo ovoga na razmišljanje.
 MAX_TOKENS = 2048
 ATTEMPTS = 3
+# Duže od 20 s za izvore: model za rezonovanje sporo odgovara, a prekinut poziv može biti naplaćen.
+TIMEOUT_S = 60
 
 
 class LLMError(Exception):
@@ -46,6 +50,7 @@ class _Message(BaseModel):
 
 class _Choice(BaseModel):
     message: _Message
+    finish_reason: str | None = None
 
 
 class _Usage(BaseModel):
@@ -68,7 +73,7 @@ class LLMClient:
     ) -> None:
         self._conn, self._budget, self.model = conn, budget, model
         self._http = httpx.Client(
-            transport=transport, timeout=20, headers={"Authorization": f"Bearer {api_key}"}
+            transport=transport, timeout=TIMEOUT_S, headers={"Authorization": f"Bearer {api_key}"}
         )
         self._sleep = sleep
         self._prompts = prompts
@@ -81,13 +86,19 @@ class LLMClient:
         prompt = template.substitute(variables)
         key = cache.cache_key(prompt, prompt_name, self.model)
         if (hit := cache.get(self._conn, key)) is not None:
-            return schema.model_validate(hit), Usage(cached=True)
+            try:
+                return schema.model_validate(hit), Usage(cached=True)
+            except ValidationError:
+                pass  # zapis po staroj šemi: tretira se kao promašaj i prepisuje se novim
         messages = [{"role": "user", "content": prompt}]
         total = Usage()
         for _ in range(2):
             self._budget.check()
-            content, usage = self._call(messages)
+            content, truncated, usage = self._call(messages)
             self._budget.charge(usage.cost_usd)
+            if truncated:
+                # Retry sa istim limitom bi pao isto i bio plaćen drugi put.
+                raise LLMError(f"{prompt_name}: izlaz odsečen na {MAX_TOKENS} tokena")
             total = Usage(
                 total.input_tokens + usage.input_tokens,
                 total.output_tokens + usage.output_tokens,
@@ -107,7 +118,8 @@ class LLMClient:
             return result, total
         raise ValidationFailed(f"{prompt_name}: izlaz ne prolazi {schema.__name__} posle retry-ja")
 
-    def _call(self, messages: list[dict[str, str]]) -> tuple[str, Usage]:
+    def _call(self, messages: list[dict[str, str]]) -> tuple[str, bool, Usage]:
+        """Vraća (sadržaj, da li je izlaz odsečen, potrošnja)."""
         body = {
             "model": self.model, "messages": messages, "temperature": 0,
             "max_tokens": MAX_TOKENS, "response_format": {"type": "json_object"},
@@ -118,19 +130,26 @@ class LLMClient:
                 self._sleep(2.0**attempt)
             try:
                 response = self._http.post(API_URL, json=body)
-            except httpx.TransportError as exc:
+            except (httpx.ConnectError, httpx.ConnectTimeout) as exc:
                 error = type(exc).__name__
                 continue
+            except httpx.TransportError as exc:
+                # Zahtev je možda stigao i naplaćen je; ponavljanje bi platilo još jednom.
+                raise LLMError(f"{type(exc).__name__} posle slanja zahteva") from exc
             if response.status_code == 429 or response.status_code >= 500:
                 error = f"HTTP {response.status_code}"
                 continue
             if response.status_code >= 400:
-                raise LLMError(f"HTTP {response.status_code}: {response.text[:200]}")
+                # Bez tela odgovora: sadrži user_id i identifikator ključa (pravilo 0.7).
+                raise LLMError(f"HTTP {response.status_code}")
             try:
                 parsed = _Response.model_validate_json(response.content)
             except ValidationError as exc:
-                raise LLMError(f"neispravan odgovor provajdera: {exc}") from exc
+                # Poziv je verovatno naplaćen, a trošak je nepoznat i ne ulazi u budžet.
+                log.error("odgovor provajdera bez očekivanih polja; trošak nije upisan")
+                raise LLMError(f"neispravan odgovor provajdera ({exc.error_count()})") from exc
             u = parsed.usage
             usage = Usage(u.prompt_tokens, u.completion_tokens, u.cost)
-            return parsed.choices[0].message.content or "", usage
+            choice = parsed.choices[0]
+            return choice.message.content or "", choice.finish_reason == "length", usage
         raise LLMError(f"{error} posle {ATTEMPTS} pokušaja")

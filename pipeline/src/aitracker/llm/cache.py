@@ -25,6 +25,7 @@ def put(
 ) -> None:
     conn.execute(
         "INSERT INTO llm_cache (key, prompt_version, model, output, input_tokens, output_tokens, "
-        "cost_usd) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (key) DO NOTHING",
+        "cost_usd) VALUES (%s, %s, %s, %s, %s, %s, %s) "
+        "ON CONFLICT (key) DO UPDATE SET output = EXCLUDED.output",
         (key, prompt_version, model, Jsonb(output), input_tokens, output_tokens, cost_usd),
     )

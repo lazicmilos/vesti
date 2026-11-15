@@ -1,4 +1,5 @@
 import json
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -22,23 +23,28 @@ class Fields(BaseModel):
     context_window: int | None
 
 
-def _reply(content: str) -> httpx.Response:
+def _reply(content: str, finish_reason: str = "stop") -> httpx.Response:
     body = json.loads(fixture_bytes("openrouter_chat.json"))
     body["choices"][0]["message"]["content"] = content
+    body["choices"][0]["finish_reason"] = finish_reason
     return httpx.Response(200, json=body)
 
 
 def _client(
-    conn: Conn, tmp_path: Path, responses: list[httpx.Response]
+    conn: Conn, tmp_path: Path, responses: Sequence[httpx.Response | Exception]
 ) -> tuple[LLMClient, list[httpx.Request], Budget]:
     (tmp_path / "fields_v1.md").write_text("Izvuci polja iz: $text", encoding="utf-8")
     run_id = conn.execute("INSERT INTO runs (started_at) VALUES (%s) RETURNING id", (NOW,))
     budget = Budget(conn, run_id.fetchone()[0], NOW)  # type: ignore[index]
     requests: list[httpx.Request] = []
+    queue = list(responses)
 
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(request)
-        return responses.pop(0)
+        response = queue.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
 
     client = LLMClient(conn, budget, "deepseek/deepseek-v4.1-flash", "dummy",
                        transport=httpx.MockTransport(handler), sleep=lambda _: None,
@@ -100,7 +106,57 @@ def test_server_errors_retried_client_errors_not(conn: Conn, tmp_path: Path) -> 
     client.complete_json("fields_v1", {"text": "a"}, Fields)
     assert len(requests) == 2
 
-    client, requests, budget = _client(conn, tmp_path, [httpx.Response(402)])
-    with pytest.raises(LLMError, match="402"):
+    secret = '{"error": {"message": "keys/c2f2"}, "user_id": "user_3L"}'
+    client, requests, _ = _client(conn, tmp_path, [httpx.Response(402, text=secret)])
+    with pytest.raises(LLMError) as exc:
+        client.complete_json("fields_v1", {"text": "b"}, Fields)
+    assert str(exc.value) == "HTTP 402"  # telo odgovora ne ulazi u poruku
+    assert len(requests) == 1
+
+
+def test_only_connect_errors_are_retried(conn: Conn, tmp_path: Path) -> None:
+    ok = httpx.Response(200, content=fixture_bytes("openrouter_chat.json"))
+    client, requests, _ = _client(conn, tmp_path, [httpx.ConnectError("x"), ok])
+    client.complete_json("fields_v1", {"text": "a"}, Fields)
+    assert len(requests) == 2
+
+    # Posle slanja zahtev je možda naplaćen: nema ponavljanja.
+    client, requests, _ = _client(conn, tmp_path, [httpx.ReadTimeout("x"), ok])
+    with pytest.raises(LLMError, match="ReadTimeout"):
         client.complete_json("fields_v1", {"text": "b"}, Fields)
     assert len(requests) == 1
+
+    client, requests, _ = _client(conn, tmp_path, [httpx.Response(503) for _ in range(3)])
+    with pytest.raises(LLMError, match="503 posle 3"):
+        client.complete_json("fields_v1", {"text": "c"}, Fields)
+    assert len(requests) == 3
+
+
+def test_truncated_output_is_charged_once_without_retry(conn: Conn, tmp_path: Path) -> None:
+    client, requests, budget = _client(conn, tmp_path, [_reply('{"org": "Pri', "length")])
+    with pytest.raises(LLMError, match="odsečen"):
+        client.complete_json("fields_v1", {"text": "t"}, Fields)
+    assert len(requests) == 1
+    assert budget.spent() == COST
+
+
+def test_response_without_cost_is_an_error(conn: Conn, tmp_path: Path) -> None:
+    body = json.loads(fixture_bytes("openrouter_chat.json"))
+    del body["usage"]["cost"]
+    client, _, _ = _client(conn, tmp_path, [httpx.Response(200, json=body)])
+    with pytest.raises(LLMError, match="neispravan odgovor"):
+        client.complete_json("fields_v1", {"text": "t"}, Fields)
+
+
+def test_stale_cache_entry_is_a_miss_and_gets_replaced(conn: Conn, tmp_path: Path) -> None:
+    ok = httpx.Response(200, content=fixture_bytes("openrouter_chat.json"))
+    client, requests, _ = _client(conn, tmp_path, [ok])
+    client.complete_json("fields_v1", {"text": "t"}, Fields)
+    conn.execute("UPDATE llm_cache SET output = '{\"stara\": \"šema\"}'")
+
+    client, requests, _ = _client(conn, tmp_path, [ok])
+    result, usage = client.complete_json("fields_v1", {"text": "t"}, Fields)
+    assert result.org == "Primer Lab" and not usage.cached and len(requests) == 1
+
+    _, cached = client.complete_json("fields_v1", {"text": "t"}, Fields)
+    assert cached.cached and len(requests) == 1
